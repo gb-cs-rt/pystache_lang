@@ -25,15 +25,18 @@ class CharacterIterator:
     def setIndex(self, index):
         self.index = index
 
-    def getLine(self):
-        lines = self.string[:self.index].split("\n")
-        full_line = lines[-1] + self.string[self.index:].split("\n")[0]
+    def getLineInfo(self):
 
-        return (len(lines), full_line)
-    
-    def getColumn(self):
-        lines = self.string[:self.index].split("\n")
-        return len(lines[-1])
+        line_start = self.string.rfind("\n", 0, self.index) + 1
+        line_end = self.string.find("\n", self.index)
+        full_line = self.string[line_start: line_end if line_end != -1 else None]
+        
+        return {
+            'lineNumber': self.string.count("\n", 0, self.index) + 1,
+            'column': self.index - line_start,
+            'lineString': full_line
+        }
+
 
 class Character:
 

@@ -101,6 +101,9 @@ class Lexer:
         return self.tokens
     
     def logError(self):
-            print(f"Error: Unexpected character '{self.code.current()}' at line {self.code.getLine()[0]}:")
-            print(self.code.getLine()[1])
-            print(" " * self.code.getColumn() + "^")
+        
+        lineInfo = self.code.getLineInfo()
+        print(lineInfo)
+        print(f"Error: Unexpected character '{self.code.current()}' at line {lineInfo['lineNumber']}:")
+        print(lineInfo["lineString"])
+        print(" " * lineInfo["column"] + "^")
