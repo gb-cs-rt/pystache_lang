@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
 from utils import CharacterIterator, Character
 
+# ====================================
+# >>>>>>>>>> Classe Token <<<<<<<<<<<<
+# ====================================
+
 class Token:
 
     def __init__(self, tipo, lexema):
@@ -12,12 +16,20 @@ class Token:
     
     def __repr__(self) -> str:
         return self.__str__()
-    
+
+# ====================================
+# >>>>>>>>>> Classe AFD <<<<<<<<<<<<<<
+# ====================================
+
 class AFD(ABC):
 
     @abstractmethod
     def evaluate(self, code: CharacterIterator) -> Token:
         pass
+
+# ====================================
+# >>>>>>> Classe MathOperator <<<<<<<<
+# ====================================
 
 class MathOperator(AFD):
 
@@ -41,6 +53,10 @@ class MathOperator(AFD):
             case _:
                 return None
             
+# ====================================
+# >>>>>>>>> Classe Number <<<<<<<<<<<
+# ====================================
+            
 class Number(AFD):
 
     def evaluate(self, code: CharacterIterator) -> Token:
@@ -61,6 +77,10 @@ class Number(AFD):
     def endNumber(self, code: CharacterIterator) -> bool:
         return code.current() == None or not Character.isDigit(code.current())
             
+# ====================================
+# >>>>>>>>>> Classe Lexer <<<<<<<<<<<
+# ====================================
+
 class Lexer:
 
     def __init__(self, code):
@@ -103,7 +123,6 @@ class Lexer:
     def logError(self):
         
         lineInfo = self.code.getLineInfo()
-        print(lineInfo)
         print(f"Error: Unexpected character '{self.code.current()}' at line {lineInfo['lineNumber']}:")
         print(lineInfo["lineString"])
         print(" " * lineInfo["column"] + "^")
