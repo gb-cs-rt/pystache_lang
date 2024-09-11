@@ -62,8 +62,20 @@ class Number(AFD):
     def evaluate(self, code: CharacterIterator) -> Token:
         if Character.isDigit(code.current()):
             number = self.readNumber(code)
-            
+
             if self.endNumber(code):
+
+                if code.current() == '.':
+                    
+                    number += code.current()
+                    if not Character.isDigit(code.next()):
+                        return None
+                    else:
+                        number += self.readNumber(code)
+
+                    if self.endNumber(code):
+                        return Token("DOUBLE", number)
+
                 return Token("NUMBER", number)
         return None
 
@@ -76,6 +88,44 @@ class Number(AFD):
     
     def endNumber(self, code: CharacterIterator) -> bool:
         return code.current() == None or not Character.isDigit(code.current())
+
+# ====================================
+# >>>>>>>>> Classe Parentheses <<<<<<<
+# ====================================
+
+class Parentheses(AFD):
+    
+        def evaluate(self, code: CharacterIterator) -> Token:
+            match code.current():
+                case '(':
+                    code.next()
+                    return Token("OPEN_PARENTHESIS", "(")
+                case ')':
+                    code.next()
+                    return Token("CLOSE_PARENTHESIS", ")")
+                case _:
+                    return None
+
+# ====================================
+# >>>>>>>>>>> Classe ID <<<<<<<<<<<<<<
+# ====================================
+
+class ID(AFD):
+
+    def evaluate(self, code: CharacterIterator) -> Token:
+        
+        if Character.isDigit(code.current()):
+            return None
+        else:
+            id = ""
+            if Character.isID(code.current()):
+                id += code.current()
+                code.next()
+                while Character.isID(code.current()):
+                    id += code.current()
+                    code.next()
+
+            return Token("ID", id)
             
 # ====================================
 # >>>>>>>>>> Classe Lexer <<<<<<<<<<<
@@ -85,7 +135,7 @@ class Lexer:
 
     def __init__(self, code):
         self.tokens = []
-        self.afds = [MathOperator(), Number()]
+        self.afds = [MathOperator(), Number(), Parentheses(), ID()]
         self.code = CharacterIterator(code)
         self.line = 1
 

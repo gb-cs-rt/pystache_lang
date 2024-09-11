@@ -45,3 +45,9 @@ class Character:
         if type(char) == str:
             return char.isdigit()
         return False
+
+    @staticmethod
+    def isID(char):
+        if type(char) == str:
+            return char.isalpha() or char == "_" or char.isdigit()
+        return False
