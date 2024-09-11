@@ -47,7 +47,19 @@ class Character:
         return False
 
     @staticmethod
-    def isID(char):
+    def isAllowedInID(char):
         if type(char) == str:
-            return char.isalpha() or char == "_" or char.isdigit()
+            return (char.isalpha()) or (char == "_") or (char.isdigit())
         return False
+    
+    @staticmethod
+    def isAllowedAfterID(char):
+        return char in [' ', '\n', '(', ')', '+', '-', '*', '/', '^', '=', None]
+    
+    @staticmethod
+    def isAllowedAfterNumber(char):
+        return char in [' ', '\n', '(', ')', '+', '-', '*', '/', '^', '.', None, '=', '<', '>', '!', '&', '|']
+    
+    @staticmethod
+    def isAllowedAfterEqual(char):
+        return char in [' ', '\n', '(', ')', '+', '-', '*', '/', '^', None] or Character.isDigit(char)

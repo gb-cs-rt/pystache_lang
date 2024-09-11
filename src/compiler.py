@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from utils import CharacterIterator, Character
+from termcolor import colored
 
 # ====================================
 # >>>>>>>>>> Classe Token <<<<<<<<<<<<
@@ -60,7 +61,7 @@ class MathOperator(AFD):
 class Number(AFD):
 
     def evaluate(self, code: CharacterIterator) -> Token:
-        if Character.isDigit(code.current()):
+        if Character.isDigit(code.current()) or code.current() == '.':
             number = self.readNumber(code)
 
             if self.endNumber(code):
@@ -87,7 +88,7 @@ class Number(AFD):
         return number
     
     def endNumber(self, code: CharacterIterator) -> bool:
-        return code.current() == None or not Character.isDigit(code.current())
+        return Character.isAllowedAfterNumber(code.current())
 
 # ====================================
 # >>>>>>>>> Classe Parentheses <<<<<<<
@@ -114,18 +115,41 @@ class ID(AFD):
 
     def evaluate(self, code: CharacterIterator) -> Token:
         
-        if Character.isDigit(code.current()):
+        if Character.isAllowedInID(code.current()) and not Character.isDigit(code.current()):
+            id = self.readID(code)
+            if self.endID(code):
+                return Token("ID", id)
             return None
-        else:
-            id = ""
-            if Character.isID(code.current()):
-                id += code.current()
-                code.next()
-                while Character.isID(code.current()):
-                    id += code.current()
-                    code.next()
-
-            return Token("ID", id)
+        
+        return None
+    
+    def readID(self, code: CharacterIterator) -> str:
+        id = ""
+        while Character.isAllowedInID(code.current()):
+            id += code.current()
+            code.next()
+        return id
+    
+    def endID(self, code: CharacterIterator) -> bool:
+        return Character.isAllowedAfterID(code.current())
+        
+# ====================================
+# >>>> Classe RelationalOperator <<<<<
+# ====================================
+        
+class RelationalOperator(AFD):
+        
+            def evaluate(self, code: CharacterIterator) -> Token:
+                if code.current() == '=':
+                    if code.next() == '=':
+                        if Character.isAllowedAfterEqual(code.next()):
+                            return Token("EQUALS", "==")
+                        return None
+                    else:
+                        if Character.isAllowedAfterEqual(code.current()):
+                            return Token("ASSIGN", "=")
+                    
+                return None
             
 # ====================================
 # >>>>>>>>>> Classe Lexer <<<<<<<<<<<
@@ -135,7 +159,11 @@ class Lexer:
 
     def __init__(self, code):
         self.tokens = []
-        self.afds = [MathOperator(), Number(), Parentheses(), ID()]
+        self.afds = [MathOperator(),
+                     Number(),
+                     Parentheses(),
+                     ID(),
+                     RelationalOperator()]
         self.code = CharacterIterator(code)
         self.line = 1
 
@@ -174,5 +202,4 @@ class Lexer:
         
         lineInfo = self.code.getLineInfo()
         print(f"Error: Unexpected character '{self.code.current()}' at line {lineInfo['lineNumber']}:")
-        print(lineInfo["lineString"])
-        print(" " * lineInfo["column"] + "^")
+        print(lineInfo["lineString"][0:lineInfo["column"]] + colored(self.code.current(), 'red') + lineInfo["lineString"][lineInfo["column"] + 1:] + "\n")
