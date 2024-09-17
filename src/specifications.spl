@@ -1,0 +1,79 @@
+-=| declaração de variável:
+
+a: 1
+b: 2.5
+texto: "Olá, mundo!"
+
+-=| statement if else:
+
+se a > b entao
+    exiba("a é maior que b")
+senão
+    exiba("b é maior que a")
+
+-=| for loop:
+
+repita 10 vezes
+    exiba("essa é a repetição número {x}")
+
+de 0 ate 10
+    exiba("essa é a repetição número {x}")
+
+sendo i de 0 ate 10
+    exiba("essa é a repetição número {i}")
+
+de 0 ate 10
+    de 0 ate 10
+        exiba("essa é a repetição número {x} e {y}")
+
+-=| while loop:
+
+enquanto a < 10
+    exiba("a é menor que 10")
+    a +: 1
+
+-=| função:
+
+funcao soma(a, b)
+    retorne a + b
+
+-=| chamada de função:
+
+soma(1, 2)
+
+-=| comentário:
+
+-=| isso é um comentário |=-
+
+-=| operadores:
+
+a: 1 + 2 
+b: 1 - 2
+c: 1 * 2
+d: 1 / 2
+e: 1 % 2
+f: 1 ^ 2
+
+-=| operadores relacionais:
+
+a: 1 > 2
+b: 1 < 2
+c: 1 >= 2
+d: 1 <= 2
+e: 1 = 2
+
+-=| operadores lógicos:
+
+a: 1 != 2
+b: 1 & 2
+c: 1 | 2
+d: !1
+
+-=| operadores de atribuição:
+
+a +: 1
+b -: 1
+c *: 1
+d /: 1
+e %: 1
+f ^: 1

@@ -51,6 +51,9 @@ class MathOperator(AFD):
             case '/':
                 code.next()
                 return Token("DIV", "/")
+            case '%':
+                code.next()
+                return Token("MOD", "%")
             case _:
                 return None
             
@@ -140,16 +143,121 @@ class ID(AFD):
 class RelationalOperator(AFD):
         
             def evaluate(self, code: CharacterIterator) -> Token:
-                if code.current() == '=':
-                    if code.next() == '=':
-                        if Character.isAllowedAfterEqual(code.next()):
-                            return Token("EQUALS", "==")
+                match code.current():
+                    case '=':
+                        if Character.isAllowedAfterRelational(code.next()):
+                            return Token("EQUALS", "=")
+                    case '<':
+                        code.next()
+                        if code.current() == '=':
+                            if Character.isAllowedAfterRelational(code.next()):
+                                return Token("LESS_EQUAL", "<=")
+                            
+                        if Character.isAllowedAfterRelational(code.current()):
+                            return Token("LESS", "<")
+                    case '>':
+                        code.next()
+                        if code.current() == '=':
+                            if Character.isAllowedAfterRelational(code.next()):
+                                return Token("GREATER_EQUAL", ">=")
+                            
+                        if Character.isAllowedAfterRelational(code.current()):
+                            return Token("GREATER", ">")
+                    case '!':
+                        code.next()
+                        if code.current() == '=':
+                            if Character.isAllowedAfterRelational(code.next()):
+                                return Token("DIFFERENT", "!=")
+                    case _:
                         return None
-                    else:
-                        if Character.isAllowedAfterEqual(code.current()):
-                            return Token("ASSIGN", "=")
                     
+# ====================================
+# >>>> Classe AssignmentOperator <<<<<
+# ====================================
+                    
+class AssignmentOperator(AFD):
+    
+    def evaluate(self, code: CharacterIterator) -> Token:
+        match code.current():
+            case ':':
+                code.next()
+                return Token("ASSIGN", ":")
+            case _:
                 return None
+            
+# ====================================
+# >>>>>>>>>>> Classe String <<<<<<<<<<
+# ====================================
+            
+class String(AFD):
+    
+        def evaluate(self, code: CharacterIterator) -> Token:
+            if code.current() == '"':
+                code.next()
+                string = self.readString(code)
+                if code.current() == '"':
+                    code.next()
+                    return Token("STRING", f"\"{string}\"")
+            return None
+    
+        def readString(self, code: CharacterIterator) -> str:
+            string = ""
+            while code.current() != '"':
+                string += code.current()
+                code.next()
+            return string
+    
+        def endString(self, code: CharacterIterator) -> bool:
+            return Character.isAllowedAfterID(code.current())
+
+# ====================================
+# >>>>>>> Classe ReservedWords <<<<<<<
+# ====================================
+
+class ReservedWords(AFD):
+
+    def evaluate(self, code: CharacterIterator) -> Token:
+        self.reservedWords = ["se", "senao", "enquanto", "entao", "exiba", "repita", "vezes", "de", "ate", "sendo", "funcao", "retorne"]
+
+        text_to_evaluate = ""
+
+        while code.current() != None and code.current() != ' ' and code.current() != '\n':
+            text_to_evaluate += code.current()
+            code.next()
+        
+        if text_to_evaluate in self.reservedWords:
+            return Token(f"RESERVED_{text_to_evaluate.upper()}", text_to_evaluate)
+        return None
+
+# ====================================
+# >>>>>>>>> Classe Comma <<<<<<<<<<<
+# ====================================
+
+class Comma(AFD):
+    
+    def evaluate(self, code: CharacterIterator) -> Token:
+        if code.current() == ',':
+            code.next()
+            return Token("COMMA", ",")
+        return None
+    
+# ====================================
+# >>>>>>> Classe LogicalOperator <<<<<
+# ====================================
+    
+class LogicalOperator(AFD):
+        
+        def evaluate(self, code: CharacterIterator) -> Token:
+            match code.current():
+                case '&':
+                    code.next()
+                    return Token("AND", "&")
+                case '|':
+                    code.next()
+                    return Token("OR", "|")
+                case '!':
+                    code.next()
+                    return Token("NOT", "!")
             
 # ====================================
 # >>>>>>>>>> Classe Lexer <<<<<<<<<<<
@@ -159,17 +267,50 @@ class Lexer:
 
     def __init__(self, code):
         self.tokens = []
-        self.afds = [MathOperator(),
+        self.afds = [ReservedWords(),
+                     String(),
+                     MathOperator(),
                      Number(),
                      Parentheses(),
                      ID(),
-                     RelationalOperator()]
+                     RelationalOperator(),
+                     AssignmentOperator(),
+                     Comma(),
+                     LogicalOperator()]
         self.code = CharacterIterator(code)
-        self.line = 1
+
+    def skipComment(self):
+
+            pos = self.code.getIndex()
+            if self.code.current() == '-' and self.code.next() == '=' and self.code.next() == '|':
+                while self.code.current() != None and self.code.current() != '\n':               
+                    self.code.next()
+
+                self.code.next()
+                
+            else:
+                self.code.setIndex(pos)
 
     def skipWhitespace(self):
+
+        space_count = 0
+        self.skipComment()
+
         while self.code.current() == ' ' or self.code.current() == '\n':
+
+            if self.code.current() == '\n':
+                self.tokens.append(Token("NEW_LINE", "\\n"))
+            elif self.code.current() == '\t':
+                self.tokens.append(Token("INDENT", "\\t"))
+            else:
+                space_count += 1
+
             self.code.next()
+            self.skipComment()
+
+        if space_count % 4 == 0:
+            for _ in range(space_count // 4):
+                self.tokens.append(Token("INDENT", "\\t"))
 
     def getTokens(self) -> list:
 
@@ -177,6 +318,7 @@ class Lexer:
 
             accepted = False
             self.skipWhitespace()
+            self.skipComment()
 
             if (self.code.current() == None):
                 break
@@ -193,13 +335,14 @@ class Lexer:
 
             if not accepted:
                 self.logError()
-                return None
+                # return None
+                return self.tokens
         
         self.tokens.append(Token("EOF", "$"))
         return self.tokens
     
     def logError(self):
         
-        lineInfo = self.code.getLineInfo()
-        print(f"Error: Unexpected character '{self.code.current()}' at line {lineInfo['lineNumber']}:")
-        print(lineInfo["lineString"][0:lineInfo["column"]] + colored(self.code.current(), 'red') + lineInfo["lineString"][lineInfo["column"] + 1:] + "\n")
+        lineInfo = self.code.getErrorInfo()
+        print(f"Error: Unexpected token '{lineInfo['unexpectedToken']}' at line {lineInfo['lineNumber']}:")
+        print(lineInfo["fullLine"][0:lineInfo["errorStart"]] + colored(lineInfo['unexpectedToken'], 'red') + lineInfo["fullLine"][lineInfo["errorEnd"] + 1:] + "\n")

@@ -3,11 +3,11 @@ from pprint import pp
 
 def main():
 
-    data = open("src/test.txt", "r").read()
+    data = open("src/test.spl", "r").read()
     lexer = Lexer(data)
     tokens = lexer.getTokens()
+    pp(tokens)
 
-    print(tokens)
 
 if __name__ == '__main__':
     main()
