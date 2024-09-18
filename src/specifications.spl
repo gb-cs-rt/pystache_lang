@@ -77,3 +77,11 @@ c *: 1
 d /: 1
 e %: 1
 f ^: 1
+
+-=| TODO:
+
+-=| operadores de atribuição
+-=| trocar identação por escopo
+
+
+

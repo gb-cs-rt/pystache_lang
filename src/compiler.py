@@ -182,6 +182,36 @@ class AssignmentOperator(AFD):
             case ':':
                 code.next()
                 return Token("ASSIGN", ":")
+            case '+':
+                code.next()
+                if code.current() == ':':
+                    code.next()
+                    return Token("PLUS_ASSIGN", "+:")
+            case '-':
+                code.next()
+                if code.current() == ':':
+                    code.next()
+                    return Token("MINUS_ASSIGN", "-:")
+            case '*':
+                code.next()
+                if code.current() == ':':
+                    code.next()
+                    return Token("MULT_ASSIGN", "*:")
+            case '/':
+                code.next()
+                if code.current() == ':':
+                    code.next()
+                    return Token("DIV_ASSIGN", "/:")
+            case '%':
+                code.next()
+                if code.current() == ':':
+                    code.next()
+                    return Token("MOD_ASSIGN", "%:")
+            case '^':
+                code.next()
+                if code.current() == ':':
+                    code.next()
+                    return Token("POW_ASSIGN", "^:")
             case _:
                 return None
             
@@ -269,12 +299,12 @@ class Lexer:
         self.tokens = []
         self.afds = [ReservedWords(),
                      String(),
+                     AssignmentOperator(),
                      MathOperator(),
                      Number(),
                      Parentheses(),
                      ID(),
                      RelationalOperator(),
-                     AssignmentOperator(),
                      Comma(),
                      LogicalOperator()]
         self.code = CharacterIterator(code)
@@ -285,8 +315,6 @@ class Lexer:
             if self.code.current() == '-' and self.code.next() == '=' and self.code.next() == '|':
                 while self.code.current() != None and self.code.current() != '\n':               
                     self.code.next()
-
-                self.code.next()
                 
             else:
                 self.code.setIndex(pos)
@@ -319,6 +347,10 @@ class Lexer:
             accepted = False
             self.skipWhitespace()
             self.skipComment()
+
+            if self.code.current() == '\n':
+                print(True)
+
 
             if (self.code.current() == None):
                 break
