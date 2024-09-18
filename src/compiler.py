@@ -70,6 +70,13 @@ class Number(AFD):
             if self.endNumber(code):
 
                 if code.current() == '.':
+
+                    pos = code.getIndex()
+                    if code.next() == '.' and code.next() == '.': 
+                        code.setIndex(pos)
+                        return Token("NUMBER", number)
+                    else:
+                        code.setIndex(pos)
                     
                     number += code.current()
                     if not Character.isDigit(code.next()):
@@ -78,6 +85,16 @@ class Number(AFD):
                         number += self.readNumber(code)
 
                     if self.endNumber(code):
+
+                        if code.current() == '.':
+                            pos = code.getIndex()
+                            if code.next() == '.' and code.next() == '.': 
+                                code.setIndex(pos)
+                                return Token("DOUBLE", number)
+                            else:
+                                code.setIndex(pos)
+                                return None
+
                         return Token("DOUBLE", number)
 
                 return Token("NUMBER", number)
@@ -251,7 +268,7 @@ class ReservedWords(AFD):
 
         text_to_evaluate = ""
 
-        while code.current() != None and code.current() != ' ' and code.current() != '\n':
+        while code.current() != None and code.current() != ' ' and code.current() != '\n' and code.current() != '.' and code.current() != '(' and code.current() != ')' and code.current() != ',':
             text_to_evaluate += code.current()
             code.next()
         
@@ -288,6 +305,18 @@ class LogicalOperator(AFD):
                 case '!':
                     code.next()
                     return Token("NOT", "!")
+                
+# ====================================
+# >>>>>>>>> Classe ScopeStart <<<<<<<<
+# ====================================
+                
+class ScopeStart(AFD):
+
+    def evaluate(self, code: CharacterIterator) -> Token:
+        if code.current() == "." and code.next() == "." and code.next() == ".":
+            code.next()
+            return Token("SCOPE_START", "...")
+        return None
             
 # ====================================
 # >>>>>>>>>> Classe Lexer <<<<<<<<<<<
@@ -300,6 +329,7 @@ class Lexer:
         self.afds = [ReservedWords(),
                      String(),
                      AssignmentOperator(),
+                     ScopeStart(),
                      MathOperator(),
                      Number(),
                      Parentheses(),
@@ -308,6 +338,7 @@ class Lexer:
                      Comma(),
                      LogicalOperator()]
         self.code = CharacterIterator(code)
+        self.ident = 0
 
     def skipComment(self):
 
@@ -319,26 +350,48 @@ class Lexer:
             else:
                 self.code.setIndex(pos)
 
-    def skipWhitespace(self):
+    def verifyIdent(self):
 
+        self.code.next()
         space_count = 0
-        self.skipComment()
 
-        while self.code.current() == ' ' or self.code.current() == '\n':
+        while self.code.current() == ' ' or self.code.current() == '\t':
 
-            if self.code.current() == '\n':
-                self.tokens.append(Token("NEW_LINE", "\\n"))
-            elif self.code.current() == '\t':
-                self.tokens.append(Token("INDENT", "\\t"))
+            if self.code.current() == '\t':
+                space_count += 4
             else:
                 space_count += 1
 
             self.code.next()
+
+        self.code.previous()
+
+        ident_level = space_count // 4
+
+        if ident_level > self.ident:
+            difference = ident_level - self.ident
+            for _ in range(difference):
+                self.tokens.append(Token("INDENT", None))
+
+            self.ident = ident_level
+
+        elif ident_level < self.ident:    
+            difference = self.ident - ident_level
+            for _ in range(difference):
+                self.tokens.append(Token("DEDENT", None))
+
+            self.ident = ident_level
+
+    def skipWhitespace(self):
+
+        while self.code.current() == ' ' or self.code.current() == '\n':
+
+            if self.code.current() == '\n':
+                self.verifyIdent()
+            
+            self.code.next()
             self.skipComment()
 
-        if space_count % 4 == 0:
-            for _ in range(space_count // 4):
-                self.tokens.append(Token("INDENT", "\\t"))
 
     def getTokens(self) -> list:
 
@@ -347,10 +400,6 @@ class Lexer:
             accepted = False
             self.skipWhitespace()
             self.skipComment()
-
-            if self.code.current() == '\n':
-                print(True)
-
 
             if (self.code.current() == None):
                 break
@@ -370,6 +419,7 @@ class Lexer:
                 # return None
                 return self.tokens
         
+        self.verifyIdent()
         self.tokens.append(Token("EOF", "$"))
         return self.tokens
     

@@ -8,6 +8,5 @@ def main():
     tokens = lexer.getTokens()
     pp(tokens)
 
-
 if __name__ == '__main__':
     main()
