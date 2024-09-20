@@ -1,13 +1,4 @@
-
-
 -=| declaração de variável:
-
--=| declaração de variável:
-
-
-
-
-
 
 a: 1 -=| teste
 b: 2.5
@@ -86,14 +77,3 @@ c *: 1
 d /: 1
 e %: 1
 f ^: 1
-
--=| TODO:
-
--=| operadores de atribuição
--=| trocar identação por escopo
-
-
-
--=| declaração de variável:
-
-
