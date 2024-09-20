@@ -1,0 +1,43 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Pystache",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#comment"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control.pystache",
+				"match": "\\b(se|senao|enquanto|entao|repita|vezes|de|ate|sendo|funcao|retorne)\\b"
+			}]
+		},
+		"strings": {
+			"name": "string.quoted.double.pystache",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.pystache",
+					"match": "\\\\."
+				}
+			]
+		},
+		"comment": {
+			"patterns": [
+                {
+                    "name": "comment.line.pystache",
+                    "match": "-=\\|.*$"
+                }
+			]
+		}
+	},
+	"scopeName": "source.pyst"
+}

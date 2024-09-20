@@ -1,0 +1,33 @@
+{
+  "name": "pystache-lang",
+  "displayName": "Pystache Lang",
+  "description": "Syntax highlighting for pystache lang",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Themes"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "pystache",
+      "aliases": ["Pystache", "pystache"],
+      "extensions": [".pyst"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "pystache",
+      "scopeName": "source.pyst",
+      "path": "./syntaxes/pystache.tmLanguage.json"
+    }],
+    "themes": [
+      {
+        "label": "Pystache",
+        "uiTheme": "vs-dark",
+        "path": "./themes/Pystache-color-theme.json"
+      }
+    ]
+  }
+}
