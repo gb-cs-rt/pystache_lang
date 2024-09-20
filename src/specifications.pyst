@@ -7,35 +7,35 @@ lista: [1, 2, 3]
 
 -=| statement if else:
 
-se a > b entao...
+se a > b entao
     exiba("a é maior que b")
-senao...
+senao
     exiba("b é maior que a")
 
 -=| for loop:
 
-repita 10 vezes...
+repita 10 vezes
     exiba("essa é a repetição número {x}")
 
-repita de 0 ate 10...
+repita de 0 ate 10
     exiba("essa é a repetição número {x}")
 
-repita sendo i de 0 ate 10...
+repita sendo i de 0 ate 10
     exiba("essa é a repetição número {i}")
 
-repita de 0 ate 10...
-    repita de 0 ate 10...
+repita de 0 ate 10
+    repita de 0 ate 10
         exiba("essa é a repetição número {x} e {y}")
 
 -=| while loop:
 
-enquanto a < 10...
+enquanto a < 10
     exiba("a é menor que 10")
     a +: 1
 
 -=| função:
 
-funcao soma(a, b)...
+funcao soma(a, b)
     retorne a + b
 
 -=| chamada de função:

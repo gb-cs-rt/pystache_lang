@@ -1,5 +1,6 @@
 {
   "name": "pystache-lang",
+  "publisher": "gb-cs-rt",
   "displayName": "Pystache Lang",
   "description": "Syntax highlighting for pystache lang",
   "version": "0.0.1",
