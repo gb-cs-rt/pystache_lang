@@ -3,6 +3,7 @@
 a: 1 -=| teste
 b: 2.5
 texto: "Olá, mundo!"
+lista: [1, 2, 3]
 
 -=| statement if else:
 

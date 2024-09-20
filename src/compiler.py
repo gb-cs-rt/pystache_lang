@@ -317,6 +317,23 @@ class ScopeStart(AFD):
             code.next()
             return Token("SCOPE_START", "...")
         return None
+    
+# ====================================
+# >>>>>>>>> Classe Bracket <<<<<<<<<<<
+# ====================================
+
+class Bracket(AFD):
+    
+        def evaluate(self, code: CharacterIterator) -> Token:
+            match code.current():
+                case '[':
+                    code.next()
+                    return Token("OPEN_BRACKET", "[")
+                case ']':
+                    code.next()
+                    return Token("CLOSE_BRACKET", "]")
+                case _:
+                    return None
             
 # ====================================
 # >>>>>>>>>> Classe Lexer <<<<<<<<<<<
@@ -333,6 +350,7 @@ class Lexer:
                      MathOperator(),
                      Number(),
                      Parentheses(),
+                     Bracket(),
                      ID(),
                      RelationalOperator(),
                      Comma(),
@@ -342,13 +360,17 @@ class Lexer:
 
     def skipComment(self):
 
-            pos = self.code.getIndex()
-            if self.code.current() == '-' and self.code.next() == '=' and self.code.next() == '|':
-                while self.code.current() != None and self.code.current() != '\n':               
-                    self.code.next()
-                
-            else:
-                self.code.setIndex(pos)
+        found = False
+        pos = self.code.getIndex()
+        if self.code.current() == '-' and self.code.next() == '=' and self.code.next() == '|':
+            found = True
+            while self.code.current() != None and self.code.current() != '\n':               
+                self.code.next()
+            
+        else:
+            self.code.setIndex(pos)
+
+        return found
 
     def verifyIdent(self):
 
@@ -384,13 +406,17 @@ class Lexer:
 
     def skipWhitespace(self):
 
+        found = False
         while self.code.current() == ' ' or self.code.current() == '\n':
+
+            found = True
 
             if self.code.current() == '\n':
                 self.verifyIdent()
             
             self.code.next()
-            self.skipComment()
+
+        return found
 
 
     def getTokens(self) -> list:
@@ -398,8 +424,9 @@ class Lexer:
         while (self.code.current() != None):
 
             accepted = False
-            self.skipWhitespace()
-            self.skipComment()
+            
+            while self.skipWhitespace() or self.skipComment():
+                pass
 
             if (self.code.current() == None):
                 break

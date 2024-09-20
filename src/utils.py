@@ -74,7 +74,7 @@ class Character:
     
     @staticmethod
     def isAllowedAfterNumber(char):
-        return char in [' ', '\n', '(', ')', '+', '-', '*', '/', '^', '.', None, '=', '<', '>', '!', '&', '|', ',']
+        return char in [' ', '\n', '(', ')', '+', '-', '*', '/', '^', '.', None, '=', '<', '>', '!', '&', '|', ',', ':', '[', ']']
     
     @staticmethod
     def isAllowedAfterRelational(char):
