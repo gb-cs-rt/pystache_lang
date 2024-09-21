@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from compiler import Token, Lexer
 from pprint import pp
 import argparse
@@ -8,9 +9,11 @@ def main():
     parser.add_argument("file", nargs="?", default=None, type=str)
     args = parser.parse_args()
 
-    file = args.file if args.file else "src/test.pyst"
+    if args.file is None:
+        print("No file provided")
+        return
 
-    data = open(file, "r").read()
+    data = open(args.file, "r").read()
     lexer = Lexer(data)
     tokens = lexer.getTokens()
     pp(tokens)
