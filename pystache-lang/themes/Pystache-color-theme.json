@@ -109,6 +109,9 @@
 		"editorRuler.foreground": "#5a5a5a",
 		"editorBracketMatch.background": "#0064001a",
 		"editorBracketMatch.border": "#888888",
+		"editorBracketHighlight.foreground1": "#ffbb00",
+		"editorBracketHighlight.foreground2": "#cdff38",
+		"editorBracketHighlight.foreground3": "#38ffaf",
 		"editor.foldBackground": "#264f784d",
 		"editorOverviewRuler.background": "#25252500",
 		"editorOverviewRuler.border": "#7f7f7f4d",
@@ -272,7 +275,7 @@
 				"string constant.other.placeholder"
 			],
 			"settings": {
-				"foreground": "#b2d140"
+				"foreground": "#F0DEB3"
 			}
 		},
 		{
@@ -302,11 +305,11 @@
 				"storage.modifier"
 			],
 			"settings": {
-				"foreground": "#a2d99a"
+				"foreground": "#CBD125"
 			}
 		},
 		{
-			"name": "Operator, Misc",
+			"name": "Control, Misc",
 			"scope": [
 				"keyword.control",
 				"constant.other.color",
@@ -322,8 +325,19 @@
 				"keyword.other.substitution"
 			],
 			"settings": {
-				"foreground": "#a2d99a"
+				"foreground": "#CBD125"
 			}
+		},
+		{
+			"name": "Operators",
+			"scope": [
+				"keyword.operator",
+				"constant.other.color",
+				"keyword.other.unit"
+			],
+			"settings": {
+				"foreground": "#da9931"
+			}	
 		},
 		{
 			"name": "Tag",
@@ -372,7 +386,7 @@
 				"keyword.other"
 			],
 			"settings": {
-				"foreground": "#d19a66"
+				"foreground": "#ffffff"
 			}
 		},
 		{
@@ -387,7 +401,7 @@
 				"meta.group.braces.curly constant.other.object.key.js string.unquoted.label.js"
 			],
 			"settings": {
-				"foreground": "#339d62"
+				"foreground": "#81B563"
 			}
 		},
 		{
