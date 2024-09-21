@@ -1,4 +1,4 @@
-repita de 0 ate 10
-    repita de 5 ate 15
-        exiba("hello world")
-    exiba("fim")
+vetor: [1, 2, 3, 4, 5, 6]
+
+repita sendo i de 0 ate tamanho(vetor)
+    exiba(vetor[i])

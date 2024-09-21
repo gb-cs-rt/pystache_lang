@@ -70,7 +70,7 @@ class Character:
     
     @staticmethod
     def isAllowedAfterID(char):
-        return char in [' ', '\n', '(', ')', '+', '-', '*', '/', '^', '=', '<', '>', '!', ':', ',', None]
+        return char in [' ', '\n', '(', ')', '+', '-', '*', '/', '^', '=', '<', '>', '!', ':', ',', None, '&', '|', '[', ']']
     
     @staticmethod
     def isAllowedAfterNumber(char):
