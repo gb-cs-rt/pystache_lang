@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 from compiler import Token, Lexer
 from pprint import pp
 import argparse
