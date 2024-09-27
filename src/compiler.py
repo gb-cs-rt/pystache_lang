@@ -49,8 +49,11 @@ class MathOperator(AFD):
                 code.next()
                 return Token("POW", "^")
             case '/':
-                code.next()
-                return Token("DIV", "/")
+                if code.next() == '/':
+                    code.next()
+                    return Token("DIV_INT", "//")
+                else:
+                    return Token("DIV", "/")
             case '%':
                 code.next()
                 return Token("MOD", "%")
@@ -219,6 +222,11 @@ class AssignmentOperator(AFD):
                 if code.current() == ':':
                     code.next()
                     return Token("DIV_ASSIGN", "/:")
+                elif code.current() == '/':
+                    code.next()
+                    if code.current() == ':':
+                        code.next()
+                        return Token("DIV_INT_ASSIGN", "//:")
             case '%':
                 code.next()
                 if code.current() == ':':
@@ -250,6 +258,9 @@ class String(AFD):
         def readString(self, code: CharacterIterator) -> str:
             string = ""
             while code.current() != '"':
+                if code.current() == "\n":
+                    return None
+
                 string += code.current()
                 code.next()
             return string
@@ -264,7 +275,7 @@ class String(AFD):
 class ReservedWords(AFD):
 
     def evaluate(self, code: CharacterIterator) -> Token:
-        self.reservedWords = ["se", "senao", "enquanto", "entao", "exiba", "repita", "vezes", "de", "ate", "sendo", "funcao", "retorne"]
+        self.reservedWords = ["se", "senao", "enquanto", "entao", "exiba", "entrada", "repita", "vezes", "de", "ate", "sendo", "funcao", "retorne"]
 
         text_to_evaluate = ""
 
