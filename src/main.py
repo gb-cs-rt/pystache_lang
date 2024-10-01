@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 from lexer import Lexer
+from parser import Parser
 from pprint import pp
 import argparse
 
@@ -16,7 +17,10 @@ def main():
     data = open(args.file, "r").read()
     lexer = Lexer(data)
     tokens = lexer.getTokens()
-    pp(tokens)
+
+    parser = Parser(tokens)
+
+    pp(parser.parse())
 
 if __name__ == '__main__':
     main()
