@@ -286,6 +286,21 @@ class ReservedWords(AFD):
         if text_to_evaluate in self.reservedWords:
             return Token(f"RESERVED_{text_to_evaluate.upper()}", text_to_evaluate)
         return None
+    
+class Boolean(AFD):
+
+    def evaluate(self, code: CharacterIterator) -> Token:
+        self.boolean = ["Verdadeiro", "Falso"]
+
+        text_to_evaluate = ""
+
+        while code.current() != None and code.current() != ' ' and code.current() != '\n' and code.current() != '.' and code.current() != '(' and code.current() != ')' and code.current() != ',':
+            text_to_evaluate += code.current()
+            code.next()
+        
+        if text_to_evaluate in self.boolean:
+            return Token("BOOL", text_to_evaluate)
+        return None
 
 # ====================================
 # >>>>>>>>> Classe Comma <<<<<<<<<<<
@@ -355,6 +370,7 @@ class Lexer:
     def __init__(self, code):
         self.tokens = []
         self.afds = [ReservedWords(),
+                     Boolean(),
                      String(),
                      AssignmentOperator(),
                      ScopeStart(),
