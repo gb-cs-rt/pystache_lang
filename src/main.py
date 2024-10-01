@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from compiler import Token, Lexer
+from lexer import Lexer
 from pprint import pp
 import argparse
 
