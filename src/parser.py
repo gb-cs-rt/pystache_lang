@@ -1,4 +1,5 @@
-from utils import Tree
+from utils import Tree, CharacterIterator
+from termcolor import colored
 
 # ========================================
 # >>>>>>>>>>> Classe Rules <<<<<<<<<<<<<<<
@@ -149,9 +150,12 @@ class Rules:
 
 class Parser:
 
-    def __init__(self, tokens):
+    def __init__(self, tokens, code):
+
         self.tokens = tokens
         self.token = tokens.pop(0)
+        self.code = CharacterIterator(code)
+
         self.tree = Tree()
         self.rules = Rules(self)
 
@@ -186,8 +190,19 @@ class Parser:
     def error(self, node):
         terminal_node = self.tree.create_node(f"X Erro!", node)
         node.add_child(terminal_node)
-        print(f"!-> Error in rule {node.value} at line {self.token.linha}")
-        return False
+        # print(f"!-> Error in rule {node.value} at line {self.token.linha}")
+
+        if self.token.tipo == "EOF":
+            self.code.string += "$"
+            self.code.setIndex(len(self.code.string) - 1)
+        else:
+            self.code.setIndex(self.token.index)
+        
+        lineInfo = self.code.getErrorInfo()
+        print(f"Erro Sintático: token '{self.token.lexema}' do tipo '{self.token.tipo}' inesperado na linha {lineInfo['lineNumber']}, regra \"{node.value}\":")
+        print(lineInfo["fullLine"][0:lineInfo["errorStart"]] + colored(lineInfo['unexpectedToken'], 'red') + lineInfo["fullLine"][lineInfo["errorEnd"] + 1:])
+
+        raise Exception()
 
     def endBlock(self):
         return self.token.tipo == "DEDENT"
@@ -203,6 +218,9 @@ class Parser:
         return node
 
     def parse(self):
-        result = self.rules.prog()
-        self.tree.print_tree()
-        return result
+        try:
+            result = self.rules.prog()
+        except:
+            result = False
+
+        return result, self.tree

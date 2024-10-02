@@ -8,6 +8,7 @@ def main():
 
     parser = argparse.ArgumentParser(description='Compiler for the Pystache language')
     parser.add_argument("file", nargs="?", default=None, type=str)
+    parser.add_argument("-tree", nargs="?", default=False, type=bool)
     args = parser.parse_args()
 
     if args.file is None:
@@ -18,10 +19,12 @@ def main():
     lexer = Lexer(data)
     tokens = lexer.getTokens()
 
-    parser = Parser(tokens.copy())
+    if tokens:
+        parser = Parser(tokens.copy(), data)
+        parserResult, parserTree = parser.parse()
 
-    # pp(tokens)
-    pp(parser.parse())
+        if args.tree is not False:
+            parserTree.print_tree()
 
 if __name__ == '__main__':
     main()

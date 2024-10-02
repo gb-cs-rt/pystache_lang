@@ -8,13 +8,14 @@ from termcolor import colored
 
 class Token:
 
-    def __init__(self, tipo, lexema, linha=None):
+    def __init__(self, tipo, lexema, linha=None, index=None):
         self.tipo = tipo
         self.lexema = lexema
         self.linha = linha
+        self.index = index
 
     def __str__(self):
-        return f"< {self.tipo}, {self.lexema}, {self.linha} >"
+        return f"< {self.tipo}, {self.lexema}, {self.linha}, {self.index} >"
     
     def __repr__(self) -> str:
         return self.__str__()
@@ -421,14 +422,14 @@ class Lexer:
         if ident_level > self.ident:
             difference = ident_level - self.ident
             for _ in range(difference):
-                self.tokens.append(Token("INDENT", None, self.code.getLineNumber()))
+                self.tokens.append(Token("INDENT", None, self.code.getLineNumber(), self.code.getIndex()))
 
             self.ident = ident_level
 
         elif ident_level < self.ident:    
             difference = self.ident - ident_level
             for _ in range(difference):
-                self.tokens.append(Token("DEDENT", None, self.code.getLineNumber()))
+                self.tokens.append(Token("DEDENT", None, self.code.getLineNumber(), self.code.getIndex()))
 
             self.ident = ident_level
 
@@ -464,6 +465,7 @@ class Lexer:
                 token = afd.evaluate(self.code)
                 if token != None:
                     token.linha = self.code.getLineNumber()
+                    token.index = pos
                     self.tokens.append(token)
                     accepted = True
                     break
@@ -472,15 +474,14 @@ class Lexer:
 
             if not accepted:
                 self.logError()
-                # return None
-                return self.tokens
+                return None
         
         self.verifyIdent()
-        self.tokens.append(Token("EOF", "$", self.code.getLineNumber()))
+        self.tokens.append(Token("EOF", "$", self.code.getLineNumber(), self.code.getIndex()))
         return self.tokens
     
     def logError(self):
         
         lineInfo = self.code.getErrorInfo()
-        print(f"Error: Unexpected token '{lineInfo['unexpectedToken']}' at line {lineInfo['lineNumber']}:")
-        print(lineInfo["fullLine"][0:lineInfo["errorStart"]] + colored(lineInfo['unexpectedToken'], 'red') + lineInfo["fullLine"][lineInfo["errorEnd"] + 1:] + "\n")
+        print(f"Erro Léxico: Token '{lineInfo['unexpectedToken']}' não identificado na linha {lineInfo['lineNumber']}:")
+        print(lineInfo["fullLine"][0:lineInfo["errorStart"]] + colored(lineInfo['unexpectedToken'], 'red') + lineInfo["fullLine"][lineInfo["errorEnd"] + 1:])
