@@ -11,34 +11,48 @@ class Rules:
         self.token = tokens.pop(0)
 
     def nextToken(self):
-        self.token = self.tokens.pop(0)
+        if len(self.tokens) > 0:
+            self.token = self.tokens.pop(0)
+        else:
+            print("Fim do arquivo.")
+
+    def matchLexema(self, lexema):
+        self.nextToken()
+        return True if self.token.lexema == lexema else False
+
+    def matchTipo(self, tipo):
+        if self.token.tipo == tipo:
+            self.nextToken()
+            return True
+        return False
+
+    def firstFollow(self, tipo):
+        return True if self.token.tipo == tipo else False
+
+    def eof(self):
+        return True if self.token.tipo == "EOF" else False
+
+    def error(self, rule):
+        print(f"Erro na regra {rule}")
+        exit()
+
+    # ============== REGRAS ==================
         
     def prog(self):
-        if Rules.bloco(self):
-            if self.token.tipo == "EOF":
-                return True
-        return False
+        return True if self.bloco() and self.eof() else self.error("prog")
     
     def bloco(self):
-        if Rules.cmd(self):
-            if Rules.bloco(self):
-                return True
-            return True
-        return False
+        if self.cmd():
+            return True if self.eof() or self.bloco() else self.error("bloco")
     
     def cmd(self):
-        if Rules.cmdIf(self):
-            return True
-        return False
+        if self.firstFollow("RESERVED_SE"):
+            return self.cmdIf()
+        
+        return self.error("cmd")
     
     def cmdIf(self):
-        if self.token.tipo == "RESERVED_SE":
-            self.nextToken()
-            if self.token.tipo == "RESERVED_ENTAO":
-                self.nextToken()
-                return True
-            return False
-        return False
+        return True if self.matchTipo("RESERVED_SE") and self.matchTipo("RESERVED_ENTAO") else self.error("cmdIf")
 
 # ========================================
 # >>>>>>>>>>> Classe Parser <<<<<<<<<<<<<
