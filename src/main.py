@@ -26,5 +26,7 @@ def main():
         if args.tree is not False:
             parserTree.print_tree()
 
+        if parserResult: print("Correto!")
+
 if __name__ == '__main__':
     main()
