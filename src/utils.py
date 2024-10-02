@@ -1,3 +1,5 @@
+from termcolor import colored
+
 # ========================================
 # >>>>>>> Classe CharacterIterator <<<<<<<
 # ========================================
@@ -89,3 +91,65 @@ class Character:
     @staticmethod
     def isAllowedAfterRelational(char):
         return char in [' ', '\n', '(', ')', '+', '-', '*', '/', '^', None] or Character.isDigit(char) or Character.isAlpha(char)
+
+# ========================================
+# >>>>>>>>> Classe TreeNode <<<<<<<<<<<<<
+# ========================================
+
+class TreeNode:
+    def __init__(self, id, name, parent=None):
+        self.id = id
+        self.name = name
+        self.parent = parent
+        self.children = []
+
+    def add_child(self, child_node):
+        child_node.parent = self
+        self.children.append(child_node)
+
+    def print_node(self, level=0, is_last=False, prefix=""):
+        if level == 0:
+            indent = prefix + ("   " if is_last else "│  ")
+        else:
+            indent = prefix + ("└─ " if is_last else "├─ ")
+            
+        print(f"{indent}{colored(self.name, 'red')}") if self.name == "X Erro!" else print(f"{indent}{self.name}")
+        for i, child in enumerate(self.children):
+            child.print_node(level + 1, i == len(self.children) - 1, prefix + ("   " if is_last else "│  "))
+
+# ========================================
+# >>>>>>>>>>>> Classe Tree <<<<<<<<<<<<<<<
+# ========================================
+
+class Tree:
+    def __init__(self):
+        self.root = None
+        self.current_node = None
+        self.node_counter = 0
+
+    def create_node(self, name, parent=None):
+        self.node_counter += 1
+        return TreeNode(self.node_counter, name, parent)
+
+    def add_rule_node(self, rule_name):
+        new_node = self.create_node(rule_name, self.current_node)
+        if self.root is None:
+            self.root = new_node
+        else:
+            self.current_node.add_child(new_node)
+        self.current_node = new_node
+
+    def add_terminal_node(self, terminal_name):
+        new_node = self.create_node(terminal_name, self.current_node)
+        self.current_node.add_child(new_node)
+
+    def end_rule_node(self):
+        if self.current_node is not None:
+            self.current_node = self.current_node.parent
+
+    def print_tree(self):
+        if self.root is not None:
+            print("Árvore Sintática:")
+            self.root.print_node(is_last=True)
+        else:
+            print("Tree is empty.")

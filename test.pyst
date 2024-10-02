@@ -1,13 +1,6 @@
-se (a + b) + c = d  entao
+se a = b entao
     passe
 senao
     passe
 
-se (a + b) + c = d  entao
-    passe
-senao
-    passe
-
-se (a + b) + c = d  entao
-    passe
-senao
+se

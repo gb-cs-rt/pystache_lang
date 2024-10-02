@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from lexer import Lexer
-from parser import Parser
+from parserTree import Parser
 from pprint import pp
 import argparse
 
