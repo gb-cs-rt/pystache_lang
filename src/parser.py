@@ -163,7 +163,7 @@ class Parser:
 
     def matchTipo(self, tipo, parent_node):
         if self.token.tipo == tipo:
-            terminal_node = self.tree.create_node(f"<{tipo}, {self.token.lexema}>", parent_node)
+            terminal_node = self.tree.create_node(self.token, parent_node)
             parent_node.add_child(terminal_node)
             self.nextToken()
             return True
@@ -171,7 +171,7 @@ class Parser:
 
     def matchLexema(self, lexema, parent_node):
         if self.token.lexema == lexema:
-            terminal_node = self.tree.create_node(f"<{self.token.tipo}, {lexema}>", parent_node)
+            terminal_node = self.tree.create_node(self.token, parent_node)
             parent_node.add_child(terminal_node)
             self.nextToken()
             return True
@@ -186,14 +186,14 @@ class Parser:
     def error(self, node):
         terminal_node = self.tree.create_node(f"X Erro!", node)
         node.add_child(terminal_node)
-        print(f"!-> Error in rule {node.name} at line {self.token.linha}")
+        print(f"!-> Error in rule {node.value} at line {self.token.linha}")
         return False
 
     def endBlock(self):
         return self.token.tipo == "DEDENT"
     
-    def addNode(self, name, parent_node):
-        node = self.tree.create_node(name, parent_node)
+    def addNode(self, value, parent_node):
+        node = self.tree.create_node(value, parent_node)
         parent_node.add_child(node)
         return node
     

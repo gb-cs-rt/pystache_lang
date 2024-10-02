@@ -97,9 +97,10 @@ class Character:
 # ========================================
 
 class TreeNode:
-    def __init__(self, id, name, parent=None):
+    def __init__(self, id, value, parent=None):
         self.id = id
-        self.name = name
+        self.value = value
+        self.type = None
         self.parent = parent
         self.children = []
 
@@ -112,8 +113,8 @@ class TreeNode:
             indent = prefix + ("   " if is_last else "│  ")
         else:
             indent = prefix + ("└─ " if is_last else "├─ ")
-            
-        print(f"{indent}{colored(self.name, 'red')}") if self.name == "X Erro!" else print(f"{indent}{self.name}")
+        
+        print(f"{indent}{colored(self.value, 'red')}") if self.value == "X Erro!" else print(f"{indent}{self.value}")
         for i, child in enumerate(self.children):
             child.print_node(level + 1, i == len(self.children) - 1, prefix + ("   " if is_last else "│  "))
 
@@ -127,20 +128,20 @@ class Tree:
         self.current_node = None
         self.node_counter = 0
 
-    def create_node(self, name, parent=None):
+    def create_node(self, value, parent=None):
         self.node_counter += 1
-        return TreeNode(self.node_counter, name, parent)
+        return TreeNode(self.node_counter, value, parent)
 
-    def add_rule_node(self, rule_name):
-        new_node = self.create_node(rule_name, self.current_node)
+    def add_rule_node(self, rule_value):
+        new_node = self.create_node(rule_value, self.current_node)
         if self.root is None:
             self.root = new_node
         else:
             self.current_node.add_child(new_node)
         self.current_node = new_node
 
-    def add_terminal_node(self, terminal_name):
-        new_node = self.create_node(terminal_name, self.current_node)
+    def add_terminal_node(self, terminal_value):
+        new_node = self.create_node(terminal_value, self.current_node)
         self.current_node.add_child(new_node)
 
     def end_rule_node(self):
