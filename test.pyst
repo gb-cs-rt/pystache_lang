@@ -1,4 +1,13 @@
-se a > b | a = entao
+se (a + b) + c = d  entao
     passe
 senao
     passe
+
+se (a + b) + c = d  entao
+    passe
+senao
+    passe
+
+se (a + b) + c = d  entao
+    passe
+senao

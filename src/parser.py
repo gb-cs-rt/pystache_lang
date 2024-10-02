@@ -20,18 +20,20 @@ class Rules:
     def prog(self):
         # prog -> bloco
         print("-> prog")
+
         return True if self.bloco() and self.eof() else self.error("prog")
     
     def bloco(self):
         # bloco -> cmd bloco | ε
         print("-> bloco")
+
         if self.cmd():
             return True if self.eof() or self.endBlock() or self.bloco() else self.error("bloco")
     
     def cmd(self):
         # cmd -> cmdIf
         print("-> cmd")
-        # print(self.parser.token)
+
         if self.firstFollow("RESERVED_SE"):
             return self.cmdIf()
         if self.firstFollow("RESERVED_PASSE"):
@@ -42,11 +44,13 @@ class Rules:
     def cmdIf(self):
         # cmdIf -> RESERVED_SE condicao RESERVED_ENTAO INDENT bloco DEDENT cmdElse
         print("-> cmdIf")
+
         return True if self.matchTipo("RESERVED_SE") and self.condicao() and self.matchTipo("RESERVED_ENTAO") and self.matchTipo("INDENT") and self.bloco() and self.matchTipo("DEDENT") and self.cmdElse() else self.error("cmdIf")
     
     def cmdElse(self):
         # cmdElse -> RESERVED_SENAO INDENT bloco DEDENT | ε
         print("-> cmdElse")
+
         if self.matchTipo("RESERVED_SENAO"):
             return True if self.matchTipo("INDENT") and self.bloco() and self.matchTipo("DEDENT") else self.error("cmdElse")
         return True
@@ -60,12 +64,22 @@ class Rules:
             return True
         
     def relacao(self):
-        # relacao -> expressao opRelacional expressao | expressao
+        # relacao -> valor opRelacional valor | valor
         print("-> relacao")
-        if self.expressao():
+        if self.valor():
             if self.firstFollow("GREATER") or self.firstFollow("LESS") or self.firstFollow("EQUALS") or self.firstFollow("DIFFERENT") or self.firstFollow("GREATER_EQUAL") or self.firstFollow("LESS_EQUAL"):
-                return True if self.opRelacional() and self.expressao() else self.error("relacao")
+                return True if self.opRelacional() and self.valor() else self.error("relacao")
             return True
+        return self.error("relacao")
+        
+    def valor(self):
+        # valor -> expressao | lista | STRING | BOOL
+        print("-> valor")
+        if self.firstFollow("STRING") or self.firstFollow("BOOL"):
+            return True if self.matchTipo("STRING") or self.matchTipo("BOOL") else self.error("valor")
+        if self.firstFollow("OPEN_BRACKET"):
+            return True if self.lista() else self.error("valor")
+        return True if self.expressao() else self.error("valor")
         
     def opRelacional(self):
         # opRelacional -> GREATER | LESS | EQUALS | DIFFERENT | GREATER_EQUAL | LESS_EQUAL
@@ -106,12 +120,31 @@ class Rules:
     def fator(self):
         # fator -> NUM | DOUBLE | ID | OPEN_PARENTHESIS expressao CLOSE_PARENTHESIS
         print("-> fator")
-        if self.matchTipo("NUM") or self.matchTipo("DOUBLE") or self.matchTipo("ID"):
+        if self.matchTipo("NUMBER") or self.matchTipo("DOUBLE") or self.matchTipo("ID"):
             return True
         elif self.matchTipo("OPEN_PARENTHESIS"):
             return True if self.expressao() and self.matchTipo("CLOSE_PARENTHESIS") else self.error("fator")
         
         return self.error("fator")
+    
+    def lista(self):
+        # lista -> OPEN_BRACKET corpoLista CLOSE_BRACKET
+        print("-> lista")
+        return True if self.matchTipo("OPEN_BRACKET") and self.corpoLista() and self.matchTipo("CLOSE_BRACKET") else self.error("lista")
+    
+    def corpoLista(self):
+        # corpoLista -> valor entradaLista | ε
+        print("-> corpoLista")
+        if self.valor():
+            return True if self.entradaLista() else self.error("corpoLista")
+        return True
+    
+    def entradaLista(self):
+        # entradaLista -> COMMA valor entradaLista | ε
+        print("-> entradaLista")
+        if self.matchTipo("COMMA"):
+            return True if self.valor() and self.entradaLista() else self.error("entradaLista")
+        return True
 
 # ========================================
 # >>>>>>>>>>> Classe Parser <<<<<<<<<<<<<
@@ -122,7 +155,7 @@ class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
         self.token = tokens.pop(0)
-        self.rules = Rules(self)  # Pass the Parser instance to Rules
+        self.rules = Rules(self)
 
     def nextToken(self):
         if len(self.tokens) > 0:
@@ -150,10 +183,11 @@ class Parser:
         return self.token.tipo == "EOF"
 
     def error(self, rule):
-        print(f"Erro na regra {rule}")
+        print(f"!-> Error in rule {rule} at line {self.token.linha}")
 
     def endBlock(self):
         return self.token.tipo == "DEDENT"
 
     def parse(self):
         return self.rules.prog()
+    

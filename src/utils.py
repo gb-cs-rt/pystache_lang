@@ -29,6 +29,9 @@ class CharacterIterator:
     def setIndex(self, index):
         self.index = index
 
+    def getLineNumber(self):
+        return self.string.count("\n", 0, self.index) + 1
+
     def getErrorInfo(self):
 
         line_start = self.string.rfind("\n", 0, self.index) + 1
