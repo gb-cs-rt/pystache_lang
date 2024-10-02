@@ -15,7 +15,7 @@ class Token:
         self.index = index
 
     def __str__(self):
-        return f"< {self.tipo}, {self.lexema}, {self.linha}, {self.index} >"
+        return f"<{self.tipo}, {self.lexema}>"
     
     def __repr__(self) -> str:
         return self.__str__()

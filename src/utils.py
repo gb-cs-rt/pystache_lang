@@ -114,7 +114,14 @@ class TreeNode:
         else:
             indent = prefix + ("└─ " if is_last else "├─ ")
         
-        print(f"{indent}{colored(self.value, 'red')}") if self.value == "X Erro!" else print(f"{indent}{self.value}")
+        #print(f"{indent}{colored(self.value, 'red')}") if self.value == "X Erro!" else print(f"{indent}{self.value}")
+        if self.value == "X Erro!":
+            print(f"{indent}{colored(self.value, 'red')}")
+        elif type(self.value) == str:
+            print(f"{indent}{colored(self.value, 'blue')}")
+        else:
+            print(f"{indent}{self.value}")
+        
         for i, child in enumerate(self.children):
             child.print_node(level + 1, i == len(self.children) - 1, prefix + ("   " if is_last else "│  "))
 
@@ -150,7 +157,7 @@ class Tree:
 
     def print_tree(self):
         if self.root is not None:
-            print("Árvore Sintática:")
+            print("\nÁrvore Sintática:")
             self.root.print_node(is_last=True)
         else:
             print("Tree is empty.")
