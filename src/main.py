@@ -18,8 +18,9 @@ def main():
     lexer = Lexer(data)
     tokens = lexer.getTokens()
 
-    parser = Parser(tokens)
+    parser = Parser(tokens.copy())
 
+    # pp(tokens)
     pp(parser.parse())
 
 if __name__ == '__main__':

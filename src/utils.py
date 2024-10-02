@@ -86,34 +86,3 @@ class Character:
     @staticmethod
     def isAllowedAfterRelational(char):
         return char in [' ', '\n', '(', ')', '+', '-', '*', '/', '^', None] or Character.isDigit(char) or Character.isAlpha(char)
-
-# ========================================
-# >>>>>>>>> Classe TokenIterator <<<<<<<<<
-# ========================================
-
-class TokenIterator:
-
-    def __init__(self, tokens):
-        self.tokens = tokens
-        self.index = 0
-
-    def current(self):
-        if self.index < len(self.tokens) and self.index >= 0:
-            return self.tokens[self.index]
-        return None
-    
-    def next(self):
-        if self.index < len(self.tokens):
-            self.index += 1
-        return self.current()
-    
-    def previous(self):
-        if self.index >= 0:
-            self.index -= 1
-        return self.current()
-        
-    def getIndex(self):
-        return self.index
-    
-    def setIndex(self, index):
-        self.index = index

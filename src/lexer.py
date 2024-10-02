@@ -275,7 +275,7 @@ class String(AFD):
 class ReservedWords(AFD):
 
     def evaluate(self, code: CharacterIterator) -> Token:
-        self.reservedWords = ["se", "senao", "enquanto", "entao", "exiba", "entrada", "repita", "vezes", "de", "ate", "sendo", "funcao", "retorne"]
+        self.reservedWords = ["se", "senao", "enquanto", "entao", "exiba", "entrada", "repita", "vezes", "de", "ate", "sendo", "funcao", "retorne", "passe"]
 
         text_to_evaluate = ""
 
