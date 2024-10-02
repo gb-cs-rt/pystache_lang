@@ -8,12 +8,13 @@ from termcolor import colored
 
 class Token:
 
-    def __init__(self, tipo, lexema):
+    def __init__(self, tipo, lexema, linha=None):
         self.tipo = tipo
         self.lexema = lexema
+        self.linha = linha
 
     def __str__(self):
-        return f"< {self.tipo}, {self.lexema} >"
+        return f"< {self.tipo}, {self.lexema}, {self.linha} >"
     
     def __repr__(self) -> str:
         return self.__str__()
@@ -420,14 +421,14 @@ class Lexer:
         if ident_level > self.ident:
             difference = ident_level - self.ident
             for _ in range(difference):
-                self.tokens.append(Token("INDENT", None))
+                self.tokens.append(Token("INDENT", None, self.code.getLineNumber()))
 
             self.ident = ident_level
 
         elif ident_level < self.ident:    
             difference = self.ident - ident_level
             for _ in range(difference):
-                self.tokens.append(Token("DEDENT", None))
+                self.tokens.append(Token("DEDENT", None, self.code.getLineNumber()))
 
             self.ident = ident_level
 
@@ -462,6 +463,7 @@ class Lexer:
                 pos = self.code.getIndex()
                 token = afd.evaluate(self.code)
                 if token != None:
+                    token.linha = self.code.getLineNumber()
                     self.tokens.append(token)
                     accepted = True
                     break
@@ -474,7 +476,7 @@ class Lexer:
                 return self.tokens
         
         self.verifyIdent()
-        self.tokens.append(Token("EOF", "$"))
+        self.tokens.append(Token("EOF", "$", self.code.getLineNumber()))
         return self.tokens
     
     def logError(self):
