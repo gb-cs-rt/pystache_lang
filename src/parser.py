@@ -49,9 +49,9 @@ class Rules:
         return self.error(node)
 
     def cmdIf(self, parent_node):
-        # cmdIf -> RESERVED_SE condicao RESERVED_ENTAO INDENT bloco DEDENT cmdElse
+        # cmdIf -> RESERVED_SE valor RESERVED_ENTAO INDENT bloco DEDENT cmdElse
         node = self.addNode("cmdIf", parent_node)
-        return True if self.matchTipo("RESERVED_SE", node) and self.condicao(node) and self.matchTipo("RESERVED_ENTAO", node) and self.matchTipo("INDENT", node) and self.bloco(node) and self.matchTipo("DEDENT", node) and self.cmdElse(node) else self.error(node)
+        return True if self.matchTipo("RESERVED_SE", node) and self.valor(node) and self.matchTipo("RESERVED_ENTAO", node) and self.matchTipo("INDENT", node) and self.bloco(node) and self.matchTipo("DEDENT", node) and self.cmdElse(node) else self.error(node)
 
     def cmdElse(self, parent_node):
         # cmdElse -> RESERVED_SENAO INDENT bloco DEDENT | ε
@@ -60,28 +60,9 @@ class Rules:
             return True if self.matchTipo("INDENT", node) and self.bloco(node) and self.matchTipo("DEDENT", node) else self.error(node)
         return True
 
-    def condicao(self, parent_node):
-        # condicao -> relacao opLogico relacao | relacao
-        node = self.addNode("condicao", parent_node)
-        if self.relacao(node):
-            if self.firstFollow("AND") or self.firstFollow("OR"):
-                return True if self.opLogico(node) and self.relacao(node) else self.error(node)
-            return True
-
-    def relacao(self, parent_node):
-        # relacao -> valor opRelacional valor | valor
-        node = self.addNode("relacao", parent_node)
-        if self.valor(node):
-            if self.firstFollow("GREATER") or self.firstFollow("LESS") or self.firstFollow("EQUALS") or self.firstFollow("DIFFERENT") or self.firstFollow("GREATER_EQUAL") or self.firstFollow("LESS_EQUAL"):
-                return True if self.opRelacional(node) and self.valor(node) else self.error(node)
-            return True
-        return self.error(node)
-
     def valor(self, parent_node):
-        # valor -> expressao | lista | STRING | BOOL | cmdPrint | cmdInput | cmdCallFunc | condicao
+        # valor -> expressaoLogica | lista | STRING | BOOL | cmdPrint | cmdInput | cmdCallFunc
         node = self.addNode("valor", parent_node)
-        if self.firstFollow("STRING") or self.firstFollow("BOOL"):
-            return True if self.matchTipo("STRING", node) or self.matchTipo("BOOL", node) else self.error(node)
         if self.firstFollow("OPEN_BRACKET"):
             return True if self.lista(node) else self.error(node)
         if self.firstFollow("RESERVED_EXIBA"):
@@ -90,7 +71,37 @@ class Rules:
             return True if self.cmdInput(node) else self.error(node)
         if self.firstFollow("ID") and self.checkNext("OPEN_PARENTHESIS"):
             return True if self.cmdCallFunc(node) else self.error(node)
-        return True if self.expressao(node) else self.error(node)
+        return True if self.expressaoLogica(node) else self.error(node)
+    
+    def expressaoLogica(self, parent_node):
+        # expressaoLogica -> expressaoRelacional (opLogico expressaoRelacional)*
+        node = self.addNode("expressaoLogica", parent_node)
+        if self.expressaoRelacional(node):
+            while self.firstFollow("AND") or self.firstFollow("OR"):
+                if not (self.opLogico(node) and self.expressaoRelacional(node)):
+                    return self.error(node)
+            return True
+        return self.error(node)
+    
+    def expressaoRelacional(self, parent_node):
+        # expressaoRelacional -> expressaoAritmetica (opRelacional expressaoAritmetica)*
+        node = self.addNode("expressaoRelacional", parent_node)
+        if self.expressaoAritmetica(node):
+            while self.firstFollow("GREATER") or self.firstFollow("LESS") or self.firstFollow("EQUALS") or self.firstFollow("DIFFERENT") or self.firstFollow("GREATER_EQUAL") or self.firstFollow("LESS_EQUAL"):
+                if not (self.opRelacional(node) and self.expressaoAritmetica(node)):
+                    return self.error(node)
+            return True
+        return self.error(node)
+    
+    def expressaoAritmetica(self, parent_node):
+        # expressaoAritmetica -> termo (opAd termo)*
+        node = self.addNode("expressaoAritmetica", parent_node)
+        if self.termo(node):
+            while self.firstFollow("PLUS") or self.firstFollow("MINUS"):
+                if not (self.opAd(node) and self.termo(node)):
+                    return self.error(node)
+            return True
+        return self.error(node)
 
     def opRelacional(self, parent_node):
         # opRelacional -> GREATER | LESS | EQUALS | DIFFERENT | GREATER_EQUAL | LESS_EQUAL
@@ -116,12 +127,14 @@ class Rules:
         return True if self.matchTipo("PLUS", node) or self.matchTipo("MINUS", node) else self.error(node)
 
     def termo(self, parent_node):
-        # termo -> fator opMul fator | fator
+        # termo -> fator (opMul fator)*
         node = self.addNode("termo", parent_node)
         if self.fator(node):
-            if self.firstFollow("MULT") or self.firstFollow("DIV") or self.firstFollow("DIV_INT") or self.firstFollow("MOD"):
-                return True if self.opMul(node) and self.fator(node) else self.error(node)
+            while self.firstFollow("MULT") or self.firstFollow("DIV") or self.firstFollow("DIV_INT") or self.firstFollow("MOD"):
+                if not (self.opMul(node) and self.fator(node)):
+                    return self.error(node)
             return True
+        return self.error(node)
 
     def opMul(self, parent_node):
         # opMul -> MULT | DIV | DIV_INT | MOD
@@ -129,21 +142,22 @@ class Rules:
         return True if self.matchTipo("MULT", node) or self.matchTipo("DIV", node) or self.matchTipo("DIV_INT", node) or self.matchTipo("MOD", node) else self.error(node)
     
     def fator(self, parent_node):
-        # fator -> elemento opPow elemento | elemento
+        # fator -> elemento (opPow elemento)*
         node = self.addNode("fator", parent_node)
         if self.elemento(node):
-            if self.firstFollow("POW"):
-                return True if self.opPow(node) and self.elemento(node) else self.error(node)
+            while self.firstFollow("POW"):
+                if not (self.opPow(node) and self.elemento(node)):
+                    return self.error(node)
             return True
+        return self.error(node)
 
     def elemento(self, parent_node):
-        # elemento -> NUM | DOUBLE | ID | OPEN_PARENTHESIS expressao CLOSE_PARENTHESIS
+        # elemento -> NUM | DOUBLE | ID | OPEN_PARENTHESIS expressaoLogica CLOSE_PARENTHESIS | STRING | BOOL
         node = self.addNode("elemento", parent_node)
-        if self.matchTipo("NUMBER", node) or self.matchTipo("DOUBLE", node) or self.matchTipo("ID", node):
+        if self.matchTipo("NUMBER", node) or self.matchTipo("DOUBLE", node) or self.matchTipo("ID", node) or self.matchTipo("STRING", node) or self.matchTipo("BOOL", node):
             return True
         elif self.matchTipo("OPEN_PARENTHESIS", node):
-            return True if self.expressao(node) and self.matchTipo("CLOSE_PARENTHESIS", node) else self.error(node)
-        
+            return True if self.expressaoLogica(node) and self.matchTipo("CLOSE_PARENTHESIS", node) else self.error(node)
         return self.error(node)
 
     def lista(self, parent_node):
@@ -229,9 +243,9 @@ class Rules:
         return True if self.matchTipo("RESERVED_SENDO", node) and self.matchTipo("ID", node) and self.forIntervalo(node) else self.error(node)
 
     def cmdWhile(self, parent_node):
-        # cmdWhile -> RESERVED_ENQUANTO condicao INDENT bloco DEDENT
+        # cmdWhile -> RESERVED_ENQUANTO valor INDENT bloco DEDENT
         node = self.addNode("cmdWhile", parent_node)
-        return True if self.matchTipo("RESERVED_ENQUANTO", node) and self.condicao(node) and self.matchTipo("INDENT", node) and self.bloco(node) and self.matchTipo("DEDENT", node) else self.error(node)
+        return True if self.matchTipo("RESERVED_ENQUANTO", node) and self.valor(node) and self.matchTipo("INDENT", node) and self.bloco(node) and self.matchTipo("DEDENT", node) else self.error(node)
 
     def cmdReturn(self, parent_node):
         # cmdReturn -> RESERVED_RETORNE valorRetorno

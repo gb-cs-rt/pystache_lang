@@ -22,13 +22,16 @@
 		},
 		{
 			"include": "#operators"
+		},
+		{
+			"include": "#boolean"
 		}
 	],
 	"repository": {
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.pystache",
-				"match": "\\b(se|senao|enquanto|entao|repita|vezes|de|ate|sendo|funcao|retorne)\\b"
+				"match": "\\b(se|senao|enquanto|entao|repita|vezes|de|ate|sendo|funcao|retorne|passe|passo)\\b"
 			}]
 		},
 		"strings": {
@@ -79,6 +82,14 @@
 				{
 					"name": "keyword.operator.pystache",
 					"match": "\\+|-|\\*|/|\\^|%|\\(|\\)|\\[|\\]|\\{|\\}|<|>|<=|>=|=|!=|&|\\|\\||!|\\?|:|\\+:|-:|\\*:|/:|%:|\\^:|,"
+				}
+			]
+		},
+		"boolean": {
+			"patterns": [
+				{
+					"name": "constant.language.boolean.pystache",
+					"match": "\\b(Verdadeiro|Falso)\\b"
 				}
 			]
 		}
