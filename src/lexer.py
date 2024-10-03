@@ -333,18 +333,6 @@ class LogicalOperator(AFD):
                 case '!':
                     code.next()
                     return Token("NOT", "!")
-                
-# ====================================
-# >>>>>>>>> Classe ScopeStart <<<<<<<<
-# ====================================
-                
-class ScopeStart(AFD):
-
-    def evaluate(self, code: CharacterIterator) -> Token:
-        if code.current() == "." and code.next() == "." and code.next() == ".":
-            code.next()
-            return Token("SCOPE_START", "...")
-        return None
     
 # ====================================
 # >>>>>>>>> Classe Bracket <<<<<<<<<<<
@@ -375,7 +363,6 @@ class Lexer:
                      Boolean(),
                      String(),
                      AssignmentOperator(),
-                     ScopeStart(),
                      MathOperator(),
                      Number(),
                      Parentheses(),
