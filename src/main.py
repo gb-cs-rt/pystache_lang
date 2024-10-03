@@ -12,7 +12,7 @@ def main():
     args = parser.parse_args()
 
     if args.file is None:
-        print("No file provided")
+        print("Nenhum arquivo providenciado")
         return
 
     data = open(args.file, "r").read()

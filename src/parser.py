@@ -62,7 +62,7 @@ class Rules:
         return True
 
     def valor(self, parent_node):
-        # valor -> expressaoLogica | lista | STRING | BOOL | cmdPrint | cmdInput | cmdCallFunc
+        # valor -> expressaoLogica | lista | cmdPrint | cmdInput | cmdCallFunc
         node = self.addNode("valor", parent_node)
         if self.firstFollow("OPEN_BRACKET"):
             return True if self.lista(node) else self.error(node)
@@ -113,15 +113,7 @@ class Rules:
         # opLogico -> AND | OR
         node = self.addNode("opLogico", parent_node)
         return True if self.matchTipo("AND", node) or self.matchTipo("OR", node) else self.error(node)
-
-    def expressao(self, parent_node):
-        # expressao -> termo opAd termo | termo
-        node = self.addNode("expressao", parent_node)
-        if self.termo(node):
-            if self.firstFollow("PLUS") or self.firstFollow("MINUS"):
-                return True if self.opAd(node) and self.termo(node) else self.error(node)
-            return True
-
+    
     def opAd(self, parent_node):
         # opAd -> PLUS | MINUS
         node = self.addNode("opAd", parent_node)
@@ -222,20 +214,20 @@ class Rules:
         return True if self.forVezes(node) else self.error(node)
     
     def forVezes(self, parent_node):
-        # forVezes -> expressao RESERVED_VEZES
+        # forVezes -> expressaoAritmetica RESERVED_VEZES
         node = self.addNode("forVezes", parent_node)
-        return True if self.expressao(node) and self.matchTipo("RESERVED_VEZES", node) else self.error(node)
+        return True if self.expressaoAritmetica(node) and self.matchTipo("RESERVED_VEZES", node) else self.error(node)
     
     def forIntervalo(self, parent_node):
-        # forIntervalo -> RESERVED_DE expressao RESERVED_ATE expressao passoFor
+        # forIntervalo -> RESERVED_DE expressaoAritmetica RESERVED_ATE expressaoAritmetica passoFor
         node = self.addNode("forIntervalo", parent_node)
-        return True if self.matchTipo("RESERVED_DE", node) and self.expressao(node) and self.matchTipo("RESERVED_ATE", node) and self.expressao(node) and self.passoFor(node) else self.error(node)
+        return True if self.matchTipo("RESERVED_DE", node) and self.expressaoAritmetica(node) and self.matchTipo("RESERVED_ATE", node) and self.expressaoAritmetica(node) and self.passoFor(node) else self.error(node)
     
     def passoFor(self, parent_node):
-        # passoFor -> RESERVED_PASSO expressao | ε
+        # passoFor -> RESERVED_PASSO expressaoAritmetica | ε
         node = self.addNode("passoFor", parent_node)
         if self.matchTipo("RESERVED_PASSO", node):
-            return True if self.expressao(node) else self.error(node)
+            return True if self.expressaoAritmetica(node) else self.error(node)
         return True
     
     def forSendo(self, parent_node):
