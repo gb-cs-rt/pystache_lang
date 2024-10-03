@@ -39,7 +39,6 @@ class Rules:
         if self.firstFollow("RESERVED_SE"): return self.cmdIf(node)
         if self.firstFollow("RESERVED_PASSE"): return self.matchTipo("RESERVED_PASSE", node)
         if self.firstFollow("ID") and self.checkNext("OPEN_PARENTHESIS"): return self.cmdCallFunc(node) 
-        if self.firstFollow("ID") and self.checkNext("OPEN_BRACKET"): return self.acessoLista(node)
         if self.firstFollow("ID"): return self.cmdAtrib(node)
         if self.firstFollow("RESERVED_REPITA"): return self.cmdFor(node)
         if self.firstFollow("RESERVED_ENQUANTO"): return self.cmdWhile(node)
@@ -62,7 +61,7 @@ class Rules:
         return True
 
     def valor(self, parent_node):
-        # valor -> expressaoLogica | lista | cmdPrint | cmdInput | cmdCallFunc
+        # valor -> expressaoLogica | lista | cmdPrint | cmdInput | cmdCallFunc | acessoLista
         node = self.addNode("valor", parent_node)
         if self.firstFollow("OPEN_BRACKET"):
             return True if self.lista(node) else self.error(node)
@@ -72,6 +71,8 @@ class Rules:
             return True if self.cmdInput(node) else self.error(node)
         if self.firstFollow("ID") and self.checkNext("OPEN_PARENTHESIS"):
             return True if self.cmdCallFunc(node) else self.error(node)
+        if self.firstFollow("ID") and self.checkNext("OPEN_BRACKET"):
+            return True if self.acessoLista(node) else self.error(node)
         return True if self.expressaoLogica(node) else self.error(node)
     
     def expressaoLogica(self, parent_node):
@@ -173,10 +174,13 @@ class Rules:
         return True
     
     def cmdAtrib(self, parent_node):
-        # cmdAtrib -> ID tipoAtrib
+        # cmdAtrib -> (ID | acessoLista) tipoAtrib
         node = self.addNode("cmdAtrib", parent_node)
+        # return True if self.matchTipo("ID", node) and self.tipoAtrib(node) else self.error(node)
+        if self.firstFollow("ID") and self.checkNext("OPEN_BRACKET"):
+            return True if self.acessoLista(node) and self.tipoAtrib(node) else self.error(node)
         return True if self.matchTipo("ID", node) and self.tipoAtrib(node) else self.error(node)
-    
+
     def tipoAtrib(self, parent_node):
         # tipoAtrib -> atribComum | atribComOp
         node = self.addNode("tipoAtrib", parent_node)
@@ -275,6 +279,11 @@ class Rules:
         # cmdCallFunc -> ID OPEN_PARENTHESIS corpoLista CLOSE_PARENTHESIS
         node = self.addNode("cmdCallFunc", parent_node)
         return True if self.matchTipo("ID", node) and self.matchTipo("OPEN_PARENTHESIS", node) and self.corpoLista(node) and self.matchTipo("CLOSE_PARENTHESIS", node) else self.error(node)
+
+    def acessoLista(self, parent_node):
+        # acessoLista -> ID OPEN_BRACKET expressaoAritmetica CLOSE_BRACKET
+        node = self.addNode("acessoLista", parent_node)
+        return True if self.matchTipo("ID", node) and self.matchTipo("OPEN_BRACKET", node) and self.expressaoAritmetica(node) and self.matchTipo("CLOSE_BRACKET", node) else self.error(node)
 
     def cmdPrint(self, parent_node):
         # cmdPrint -> RESERVED_EXIBA OPEN_PARENTHESIS corpoLista CLOSE_PARENTHESIS
