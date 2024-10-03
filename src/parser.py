@@ -13,6 +13,7 @@ class Rules:
         self.matchLexema = parser.matchLexema
         self.matchTipo = parser.matchTipo
         self.firstFollow = parser.firstFollow
+        self.checkNext = parser.checkNext
         self.eof = parser.eof
         self.error = parser.error
         self.endBlock = parser.endBlock
@@ -35,10 +36,16 @@ class Rules:
     def cmd(self, parent_node):
         # cmd -> cmdIf
         node = self.addNode("cmd", parent_node)
-        if self.firstFollow("RESERVED_SE"):
-            return self.cmdIf(node)
-        if self.firstFollow("RESERVED_PASSE"):
-            return self.matchTipo("RESERVED_PASSE", node)
+        if self.firstFollow("RESERVED_SE"): return self.cmdIf(node)
+        if self.firstFollow("RESERVED_PASSE"): return self.matchTipo("RESERVED_PASSE", node)
+        if self.firstFollow("ID") and self.checkNext("OPEN_PARENTHESIS"): return self.cmdCallFunc(node) 
+        if self.firstFollow("ID"): return self.cmdAtrib(node)
+        if self.firstFollow("RESERVED_REPITA"): return self.cmdFor(node)
+        if self.firstFollow("RESERVED_ENQUANTO"): return self.cmdWhile(node)
+        if self.firstFollow("RESERVED_RETORNE"): return self.cmdReturn(node)
+        if self.firstFollow("RESERVED_FUNCAO"): return self.cmdDefFunc(node)
+        if self.firstFollow("RESERVED_EXIBA"): return self.cmdPrint(node)
+        if self.firstFollow("RESERVED_ENTRADA"): return self.cmdInput(node)
         return self.error(node)
 
     def cmdIf(self, parent_node):
@@ -71,12 +78,18 @@ class Rules:
         return self.error(node)
 
     def valor(self, parent_node):
-        # valor -> expressao | lista | STRING | BOOL
+        # valor -> expressao | lista | STRING | BOOL | cmdPrint | cmdInput | cmdCallFunc | condicao
         node = self.addNode("valor", parent_node)
         if self.firstFollow("STRING") or self.firstFollow("BOOL"):
             return True if self.matchTipo("STRING", node) or self.matchTipo("BOOL", node) else self.error(node)
         if self.firstFollow("OPEN_BRACKET"):
             return True if self.lista(node) else self.error(node)
+        if self.firstFollow("RESERVED_EXIBA"):
+            return True if self.cmdPrint(node) else self.error(node)
+        if self.firstFollow("RESERVED_ENTRADA"):
+            return True if self.cmdInput(node) else self.error(node)
+        if self.firstFollow("ID") and self.checkNext("OPEN_PARENTHESIS"):
+            return True if self.cmdCallFunc(node) else self.error(node)
         return True if self.expressao(node) else self.error(node)
 
     def opRelacional(self, parent_node):
@@ -106,18 +119,26 @@ class Rules:
         # termo -> fator opMul fator | fator
         node = self.addNode("termo", parent_node)
         if self.fator(node):
-            if self.firstFollow("MULT") or self.firstFollow("DIV"):
+            if self.firstFollow("MULT") or self.firstFollow("DIV") or self.firstFollow("DIV_INT") or self.firstFollow("MOD"):
                 return True if self.opMul(node) and self.fator(node) else self.error(node)
             return True
 
     def opMul(self, parent_node):
-        # opMul -> MULT | DIV
+        # opMul -> MULT | DIV | DIV_INT | MOD
         node = self.addNode("opMul", parent_node)
-        return True if self.matchTipo("MULT", node) or self.matchTipo("DIV", node) else self.error(node)
-
+        return True if self.matchTipo("MULT", node) or self.matchTipo("DIV", node) or self.matchTipo("DIV_INT", node) or self.matchTipo("MOD", node) else self.error(node)
+    
     def fator(self, parent_node):
-        # fator -> NUM | DOUBLE | ID | OPEN_PARENTHESIS expressao CLOSE_PARENTHESIS
+        # fator -> elemento opPow elemento | elemento
         node = self.addNode("fator", parent_node)
+        if self.elemento(node):
+            if self.firstFollow("POW"):
+                return True if self.opPow(node) and self.elemento(node) else self.error(node)
+            return True
+
+    def elemento(self, parent_node):
+        # elemento -> NUM | DOUBLE | ID | OPEN_PARENTHESIS expressao CLOSE_PARENTHESIS
+        node = self.addNode("elemento", parent_node)
         if self.matchTipo("NUMBER", node) or self.matchTipo("DOUBLE", node) or self.matchTipo("ID", node):
             return True
         elif self.matchTipo("OPEN_PARENTHESIS", node):
@@ -133,9 +154,9 @@ class Rules:
     def corpoLista(self, parent_node):
         # corpoLista -> valor entradaLista | ε
         node = self.addNode("corpoLista", parent_node)
-        if self.valor(node):
-            return True if self.entradaLista(node) else self.error(node)
-        return True
+        if self.firstFollow("CLOSE_BRACKET") or self.firstFollow("CLOSE_PARENTHESIS"):
+            return True
+        return True if self.valor(node) and self.entradaLista(node) else self.error(node)
 
     def entradaLista(self, parent_node):
         # entradaLista -> COMMA valor entradaLista | ε
@@ -144,6 +165,124 @@ class Rules:
             return True if self.valor(node) and self.entradaLista(node) else self.error(node)
         return True
     
+    def cmdAtrib(self, parent_node):
+        # cmdAtrib -> ID tipoAtrib
+        node = self.addNode("cmdAtrib", parent_node)
+        return True if self.matchTipo("ID", node) and self.tipoAtrib(node) else self.error(node)
+    
+    def tipoAtrib(self, parent_node):
+        # tipoAtrib -> atribComum | atribComOp
+        node = self.addNode("tipoAtrib", parent_node)
+        if self.firstFollow("ASSIGN"):
+            return True if self.atribComum(node) else self.error(node)
+        return True if self.atribComOp(node) else self.error(node)
+    
+    def atribComum(self, parent_node):
+        # atribComum -> ASSIGN valor
+        node = self.addNode("atribComum", parent_node)
+        return True if self.matchTipo("ASSIGN", node) and self.valor(node) else self.error(node)
+    
+    def atribComOp(self, parent_node):
+        # atribComOp -> assignOp valor
+        node = self.addNode("atribComOp", parent_node)
+        return True if self.assignOp(node) and self.valor(node) else self.error(node)
+    
+    def assignOp(self, parent_node):
+        # assignOp -> PLUS_ASSIGN | MINUS_ASSIGN | MULT_ASSIGN | DIV_ASSIGN | DIV_INT_ASSIGN | MOD_ASSIGN | POW_ASSIGN
+        node = self.addNode("assignOp", parent_node)
+        return True if self.matchTipo("PLUS_ASSIGN", node) or self.matchTipo("MINUS_ASSIGN", node) or self.matchTipo("MULT_ASSIGN", node) or self.matchTipo("DIV_ASSIGN", node) or self.matchTipo("DIV_INT_ASSIGN", node) or self.matchTipo("MOD_ASSIGN", node) or self.matchTipo("POW_ASSIGN", node) else self.error(node)
+    
+    def cmdFor(self, parent_node):
+        # cmdFor -> RESERVED_REPITA variavelFor INDENT bloco DEDENT
+        node = self.addNode("cmdFor", parent_node)
+        return True if self.matchTipo("RESERVED_REPITA", node) and self.variavelFor(node) and self.matchTipo("INDENT", node) and self.bloco(node) and self.matchTipo("DEDENT", node) else self.error(node)
+    
+    def variavelFor(self, parent_node):
+        # variavelFor -> forVezes | forIntervalo | forSendo
+        node = self.addNode("variavelFor", parent_node)
+        if self.firstFollow("RESERVED_DE"):
+            return True if self.forIntervalo(node) else self.error(node)
+        if self.firstFollow("RESERVED_SENDO"):
+            return True if self.forSendo(node) else self.error(node)
+        return True if self.forVezes(node) else self.error(node)
+    
+    def forVezes(self, parent_node):
+        # forVezes -> expressao RESERVED_VEZES
+        node = self.addNode("forVezes", parent_node)
+        return True if self.expressao(node) and self.matchTipo("RESERVED_VEZES", node) else self.error(node)
+    
+    def forIntervalo(self, parent_node):
+        # forIntervalo -> RESERVED_DE expressao RESERVED_ATE expressao passoFor
+        node = self.addNode("forIntervalo", parent_node)
+        return True if self.matchTipo("RESERVED_DE", node) and self.expressao(node) and self.matchTipo("RESERVED_ATE", node) and self.expressao(node) and self.passoFor(node) else self.error(node)
+    
+    def passoFor(self, parent_node):
+        # passoFor -> RESERVED_PASSO expressao | ε
+        node = self.addNode("passoFor", parent_node)
+        if self.matchTipo("RESERVED_PASSO", node):
+            return True if self.expressao(node) else self.error(node)
+        return True
+    
+    def forSendo(self, parent_node):
+        # forSendo -> RESERVED_SENDO ID forIntervalo
+        node = self.addNode("forSendo", parent_node)
+        return True if self.matchTipo("RESERVED_SENDO", node) and self.matchTipo("ID", node) and self.forIntervalo(node) else self.error(node)
+
+    def cmdWhile(self, parent_node):
+        # cmdWhile -> RESERVED_ENQUANTO condicao INDENT bloco DEDENT
+        node = self.addNode("cmdWhile", parent_node)
+        return True if self.matchTipo("RESERVED_ENQUANTO", node) and self.condicao(node) and self.matchTipo("INDENT", node) and self.bloco(node) and self.matchTipo("DEDENT", node) else self.error(node)
+
+    def cmdReturn(self, parent_node):
+        # cmdReturn -> RESERVED_RETORNE valorRetorno
+        node = self.addNode("cmdReturn", parent_node)
+        return True if self.matchTipo("RESERVED_RETORNE", node) and self.valorRetorno(node) else self.error(node)
+    
+    def cmdDefFunc(self, parent_node):
+        # cmdDefFunc -> RESERVED_FUNCAO ID OPEN_PARENTHESIS listaParametros CLOSE_PARENTHESIS INDENT bloco DEDENT
+        node = self.addNode("cmdDefFunc", parent_node)
+        return True if self.matchTipo("RESERVED_FUNCAO", node) and self.matchTipo("ID", node) and self.matchTipo("OPEN_PARENTHESIS", node) and self.listaParametros(node) and self.matchTipo("CLOSE_PARENTHESIS", node) and self.matchTipo("INDENT", node) and self.bloco(node) and self.matchTipo("DEDENT", node) else self.error(node)
+    
+    def listaParametros(self, parent_node):
+        # listaParametros -> ID entradaListaParam | ε
+        node = self.addNode("listaParametros", parent_node)
+        if self.matchTipo("ID", node):
+            return True if self.entradaListaParam(node) else self.error(node)
+        return True
+    
+    def entradaListaParam(self, parent_node):
+        # entradaListaParam -> COMMA ID entradaListaParam | ε
+        node = self.addNode("entradaListaParam", parent_node)
+        if self.matchTipo("COMMA", node):
+            return True if self.matchTipo("ID", node) and self.entradaListaParam(node) else self.error(node)
+        return True
+    
+    def valorRetorno(self, parent_node):
+        # valorRetorno -> valor | ε
+        node = self.addNode("valorRetorno", parent_node)
+        if self.eof() or self.endBlock():
+            return True
+        return True if self.valor(node) else self.error(node)
+    
+    def cmdCallFunc(self, parent_node):
+        # cmdCallFunc -> ID OPEN_PARENTHESIS corpoLista CLOSE_PARENTHESIS
+        node = self.addNode("cmdCallFunc", parent_node)
+        return True if self.matchTipo("ID", node) and self.matchTipo("OPEN_PARENTHESIS", node) and self.corpoLista(node) and self.matchTipo("CLOSE_PARENTHESIS", node) else self.error(node)
+
+    def cmdPrint(self, parent_node):
+        # cmdPrint -> RESERVED_EXIBA OPEN_PARENTHESIS corpoLista CLOSE_PARENTHESIS
+        node = self.addNode("cmdPrint", parent_node)
+        return True if self.matchTipo("RESERVED_EXIBA", node) and self.matchTipo("OPEN_PARENTHESIS", node) and self.corpoLista(node) and self.matchTipo("CLOSE_PARENTHESIS", node) else self.error(node)
+    
+    def cmdInput(self, parent_node):
+        # cmdInput -> RESERVED_ENTRADA OPEN_PARENTHESIS corpoLista CLOSE_PARENTHESIS
+        node = self.addNode("cmdInput", parent_node)
+        return True if self.matchTipo("RESERVED_ENTRADA", node) and self.matchTipo("OPEN_PARENTHESIS", node) and self.corpoLista(node) and self.matchTipo("CLOSE_PARENTHESIS", node) else self.error(node)
+    
+    def opPow(self, parent_node):
+        # opPow -> POW
+        node = self.addNode("opPow", parent_node)
+        return True if self.matchTipo("POW", node) else self.error(node)
 # ========================================
 # >>>>>>>>>>> Classe Parser <<<<<<<<<<<<<
 # ========================================
@@ -183,6 +322,9 @@ class Parser:
 
     def firstFollow(self, tipo):
         return self.token.tipo == tipo
+    
+    def checkNext(self, tipo):
+        return self.tokens[0].tipo == tipo
 
     def eof(self):
         return self.token.tipo == "EOF"
@@ -222,5 +364,7 @@ class Parser:
             result = self.rules.prog()
         except:
             result = False
+
+        # result = self.rules.prog()
 
         return result, self.tree

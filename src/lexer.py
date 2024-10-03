@@ -15,7 +15,7 @@ class Token:
         self.index = index
 
     def __str__(self):
-        return f"<{self.tipo}, {self.lexema}>"
+        return f"<{self.tipo}, {self.lexema}, line {self.linha}>"
     
     def __repr__(self) -> str:
         return self.__str__()
@@ -277,7 +277,7 @@ class String(AFD):
 class ReservedWords(AFD):
 
     def evaluate(self, code: CharacterIterator) -> Token:
-        self.reservedWords = ["se", "senao", "enquanto", "entao", "exiba", "entrada", "repita", "vezes", "de", "ate", "sendo", "funcao", "retorne", "passe"]
+        self.reservedWords = ["se", "senao", "enquanto", "entao", "exiba", "entrada", "repita", "vezes", "de", "ate", "sendo", "funcao", "retorne", "passe", "passo"]
 
         text_to_evaluate = ""
 
