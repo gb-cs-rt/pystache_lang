@@ -37,7 +37,17 @@
 		"strings": {
 			"name": "string.quoted.double.pystache",
 			"begin": "\"",
-			"end": "\"",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.begin.pystache"
+				}
+			},
+			"end": "(?<!\\\\)\"|(?=\\n)",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.definition.string.end.pystache"
+				}
+			},
 			"patterns": [
 				{
 					"name": "constant.character.escape.pystache",
