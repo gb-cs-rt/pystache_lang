@@ -39,6 +39,7 @@ class Rules:
         if self.firstFollow("RESERVED_SE"): return self.cmdIf(node)
         if self.firstFollow("RESERVED_PASSE"): return self.matchTipo("RESERVED_PASSE", node)
         if self.firstFollow("ID") and self.checkNext("OPEN_PARENTHESIS"): return self.cmdCallFunc(node) 
+        if self.firstFollow("ID") and self.checkNext("OPEN_BRACKET"): return self.acessoLista(node)
         if self.firstFollow("ID"): return self.cmdAtrib(node)
         if self.firstFollow("RESERVED_REPITA"): return self.cmdFor(node)
         if self.firstFollow("RESERVED_ENQUANTO"): return self.cmdWhile(node)

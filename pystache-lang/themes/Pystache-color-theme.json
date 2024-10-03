@@ -569,5 +569,14 @@
 				"fontStyle": "italic"
 			}
 		},
+		{
+			"name": "Boolean",
+			"scope": [
+				"constant.language.boolean.pystache"
+			],
+			"settings": {
+				"foreground": "#ffab4c"
+			}
+		}
 	]
 }

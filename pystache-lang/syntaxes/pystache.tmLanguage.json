@@ -6,6 +6,9 @@
 			"include": "#keywords"
 		},
 		{
+			"include": "#boolean"
+		},
+		{
 			"include": "#strings"
 		},
 		{
@@ -22,16 +25,13 @@
 		},
 		{
 			"include": "#operators"
-		},
-		{
-			"include": "#boolean"
 		}
 	],
 	"repository": {
 		"keywords": {
 			"patterns": [{
 				"name": "keyword.control.pystache",
-				"match": "\\b(se|senao|enquanto|entao|repita|vezes|de|ate|sendo|funcao|retorne|passe|passo)\\b"
+				"match": "\\b(se|senao|enquanto|entao|repita|vezes|de|ate|sendo|funcao|retorne|passe|passo|pare)\\b"
 			}]
 		},
 		"strings": {
@@ -89,7 +89,7 @@
 			"patterns": [
 				{
 					"name": "constant.language.boolean.pystache",
-					"match": "\\b(Verdadeiro|Falso)\\b"
+					"match": "\\b(verdadeiro|falso)\\b"
 				}
 			]
 		}

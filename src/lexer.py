@@ -277,7 +277,7 @@ class String(AFD):
 class ReservedWords(AFD):
 
     def evaluate(self, code: CharacterIterator) -> Token:
-        self.reservedWords = ["se", "senao", "enquanto", "entao", "exiba", "entrada", "repita", "vezes", "de", "ate", "sendo", "funcao", "retorne", "passe", "passo"]
+        self.reservedWords = ["se", "senao", "enquanto", "entao", "exiba", "entrada", "repita", "vezes", "de", "ate", "sendo", "funcao", "retorne", "passe", "passo", "pare"]
 
         text_to_evaluate = ""
 
@@ -292,7 +292,7 @@ class ReservedWords(AFD):
 class Boolean(AFD):
 
     def evaluate(self, code: CharacterIterator) -> Token:
-        self.boolean = ["Verdadeiro", "Falso"]
+        self.boolean = ["verdadeiro", "falso"]
 
         text_to_evaluate = ""
 
