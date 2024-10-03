@@ -118,7 +118,7 @@ class TreeNode:
         if self.value == "X Erro!":
             print(f"{indent}{colored(self.value, 'red')}")
         elif type(self.value) == str:
-            print(f"{indent}{colored(self.value, 'blue')}")
+            print(f"{indent}{colored(self.value, 'green')}")
         else:
             print(f"{indent}{self.value}")
         
