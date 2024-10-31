@@ -47,7 +47,7 @@ class Semantic:
         first_token = elements[0].value
         if first_token.tipo == "ID":
             if first_token.lexema not in self.type_hash:
-                print(f"variable {first_token} not declared")
+                self.error(f"variável {first_token.lexema} não declarada", first_token.linha)
                 return None
             
             token_type = self.type_hash[first_token.lexema]
