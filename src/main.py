@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 from lexer import Lexer
 from parser import Parser
+from semantic import Semantic
+from converter import Converter
 from pprint import pp
 import argparse
 
@@ -26,7 +28,16 @@ def main():
         if args.tree is not False:
             parserTree.print_tree()
 
-        if parserResult: print("Correto!")
+        if parserResult:
+            print("Correto!")
+
+            semantic = Semantic(parserTree)
+            semantic.check(parserTree.root)
+
+            print(semantic.type_hash)
+
+            converter = Converter(parserTree)
+            converter.convert()
 
 if __name__ == '__main__':
     main()

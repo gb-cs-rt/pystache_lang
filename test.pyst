@@ -1,6 +1,2 @@
-se a = b entao
-    passe
-senao
-    passe
-
-se
+a: 1 + 2
+b: a - 2

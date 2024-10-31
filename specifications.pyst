@@ -70,7 +70,6 @@ e: 1 = 2
 a: 1 != 2
 b: 1 & 2
 c: 1 | 2
-d: !1
 
 -=| operadores de atribuição:
 

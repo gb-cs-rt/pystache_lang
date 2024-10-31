@@ -103,6 +103,15 @@ class TreeNode:
         self.type = None
         self.parent = parent
         self.children = []
+        self.enter = ""
+        self.exit = ""
+
+        if self.value == "X Erro!":
+            self.type = "error"
+        elif type(self.value) == str:
+            self.type = "rule"
+        else:
+            self.type = "token"
 
     def add_child(self, child_node):
         child_node.parent = self
@@ -115,9 +124,9 @@ class TreeNode:
             indent = prefix + ("└─ " if is_last else "├─ ")
         
         #print(f"{indent}{colored(self.value, 'red')}") if self.value == "X Erro!" else print(f"{indent}{self.value}")
-        if self.value == "X Erro!":
+        if self.type == "error":
             print(f"{indent}{colored(self.value, 'red')}")
-        elif type(self.value) == str:
+        elif self.type == "rule":
             print(f"{indent}{colored(self.value, 'green')}")
         else:
             print(f"{indent}{self.value}")
