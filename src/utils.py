@@ -33,6 +33,10 @@ class CharacterIterator:
 
     def getLineNumber(self):
         return self.string.count("\n", 0, self.index) + 1
+    
+    def getLine(self, lineNumber):
+        lines = self.string.split("\n")
+        return lines[lineNumber - 1]
 
     def getErrorInfo(self):
 

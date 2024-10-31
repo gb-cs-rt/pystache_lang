@@ -5,6 +5,7 @@ from semantic import Semantic
 from converter import Converter
 from pprint import pp
 import argparse
+import os
 
 def main():
 
@@ -29,15 +30,22 @@ def main():
             parserTree.print_tree()
 
         if parserResult:
-            print("Correto!")
+            # print("Sintaxe correta.")
 
-            semantic = Semantic(parserTree)
-            semantic.check(parserTree.root)
+            semantic = Semantic(parserTree, data)
+            semanticResult, typeHash = semantic.run()
 
-            print(semantic.type_hash)
+            if args.tree is not False:
+                pp(typeHash)
 
-            converter = Converter(parserTree)
-            converter.convert()
+            if semanticResult:
+
+                # print("Semântica correta.")
+                converter = Converter(parserTree, typeHash)
+                converter.convert()
+
+                os.system("g++ output.cpp -o output")
+                os.system("./output")
 
 if __name__ == '__main__':
     main()
