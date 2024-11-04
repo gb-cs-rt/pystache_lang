@@ -7,6 +7,9 @@ class Translator:
         self.declaration_hash = declaration_hash
         self.lastId = None
         self.isPrint = False
+        self.isSendo = False
+        self.sendoID = None
+        self.forVezesX = 0
     
     def translate(self, node, state):
 
@@ -34,6 +37,12 @@ class Translator:
             return self.cmdPrint(state)
         elif rule == "elemento":
             return self.elemento(node, state)
+        elif rule == "forVezes":
+            return self.forVezes(node, state)
+        elif rule == "forIntervalo":
+            return self.forIntervalo(node, state)
+        elif rule == "forSendo":
+            return self.forSendo(node, state)
         else:
             return ""
         
@@ -77,6 +86,31 @@ class Translator:
                 return "= (int)"
             elif token.tipo == "POW_ASSIGN":
                 return "= pow("
+            elif token.tipo == "RESERVED_PASSE":
+                return "pass"
+            elif token.tipo == "BOOL":
+                if token.lexema == "verdadeiro":
+                    return "true"
+                elif token.lexema == "false":
+                    return "false"
+            elif token.tipo == "RESERVED_REPITA":
+                return "for "
+            elif token.tipo == "RESERVED_VEZES":
+                return f"; x{self.forVezesX}++) "
+            elif token.tipo == "RESERVED_DE":
+                return "= "
+            elif token.tipo == "RESERVED_ATE":
+                if not self.isSendo:
+                    return "; i <= "
+                else:
+                    return f"; {self.sendoID} <= "
+            elif token.tipo == "RESERVED_PASSO":
+                if not self.isSendo:
+                    return "; i = i + "
+                else:
+                    return f"; {self.sendoID} = {self.sendoID} + "
+            elif token.tipo == "RESERVED_SENDO":
+                return "(int "
             else:
                 return token.lexema
 
@@ -99,6 +133,8 @@ class Translator:
             return "vector<double> "
         elif tipo == "LIST_STRING":
             return "vector<string> "
+        elif tipo == "BOOL":
+            return "bool "
         else:
             return ""
 
@@ -168,6 +204,40 @@ class Translator:
                     return ""
             else:
                 return ""
+        
+    def forVezes(self, node, state):
+        if state == "enter":
+            print("entrou")
+            self.forVezesX += 1
+            return f"(int x{self.forVezesX} = 0; x{self.forVezesX} < "
+        elif state == "exit":
+            self.forVezesX -= 1
+            return ""
+        
+    def forIntervalo(self, node, state):
+        if state == "enter":
+            if not self.isSendo:
+                return "(int i "
+            else:
+                return ""
+        elif state == "exit":
+            if len(node.children[4].children) == 0:
+                if self.isSendo:
+                    return f"; {self.sendoID}++)"
+                else:
+                    return "; i++) "
+            else:
+                return ")"
+            
+    def forSendo(self, node, state):
+        if state == "enter":
+            self.isSendo = True
+            self.sendoID = node.children[1].value.lexema
+            return ""
+        elif state == "exit":
+            self.isSendo = False
+            self.sendoID = None
+            return ""
 
 class Converter:
     def __init__(self, tree, type_hash):
@@ -198,6 +268,7 @@ class Converter:
         file.write("#include <cstdio>\n")
         file.write("#include <cmath>\n")
         file.write("using namespace std;\n\n")
+        file.write("#define pass (void)0\n\n")
         file.write("string userInput() {\n")
         file.write("    string input;\n")
         file.write('    cout << "Enter a string: ";\n')
