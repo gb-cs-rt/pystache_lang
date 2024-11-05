@@ -2,6 +2,7 @@
   "name": "pystache-lang",
   "publisher": "gb-cs-rt",
   "displayName": "Pystache Lang",
+  "repository": "https://github.com/gb-cs-rt/projeto_compiladores/tree/main",
   "description": "Syntax highlighting for pystache lang",
   "version": "0.0.1",
   "engines": {
