@@ -7,25 +7,34 @@ class Translator:
         self.declaration_hash = declaration_hash
         self.lastId = None
         self.isPrint = False
+        self.isWhile = False
         self.isSendo = False
         self.sendoID = None
+        self.funcParam = False
         self.forVezesX = 0
+        self.stopTranslation = False
+        self.isInput = False
     
-    def translate(self, node, state):
+    def translate(self, node, state, function=False):
 
         if node.type == "rule":
-            return self.translate_rule(node, state)
+            translation = self.translate_rule(node, state, function)
         else:
-            return self.translate_token(node, state)
+            translation = self.translate_token(node, state)
 
-    def translate_rule(self, node, state):
+        if self.stopTranslation:
+            return ""
+        else:
+            return translation
+
+    def translate_rule(self, node, state, function=False):
 
         rule = node.value
 
         if rule == "prog":
             return self.prog(state)
         elif rule == "cmd":
-            return self.cmd(state)
+            return self.cmd(node, state)
         elif rule == "cmdID":
             self.lastId = node.children[0].value.lexema
             return self.cmdID(node, state)
@@ -43,6 +52,20 @@ class Translator:
             return self.forIntervalo(node, state)
         elif rule == "forSendo":
             return self.forSendo(node, state)
+        elif rule == "cmdFor":
+            return self.cmdFor(state)
+        elif rule == "cmdWhile":
+            return self.cmdWhile(state)
+        elif rule == "valor":
+            return self.valor(node, state)
+        elif rule == "cmdDefFunc":
+            return self.cmdDefFunc(node, state, function)
+        elif rule == "listaParametros":
+            return self.listaParametros(node, state)
+        elif rule == "cmdInput":
+            return self.cmdInput(node, state)
+        elif rule == "corpoLista":
+            return self.corpoLista(node, state)
         else:
             return ""
         
@@ -101,16 +124,24 @@ class Translator:
                 return "= "
             elif token.tipo == "RESERVED_ATE":
                 if not self.isSendo:
-                    return "; i <= "
+                    return f"; x{self.forVezesX} <= "
                 else:
                     return f"; {self.sendoID} <= "
             elif token.tipo == "RESERVED_PASSO":
                 if not self.isSendo:
-                    return "; i = i + "
+                    return f"; x{self.forVezesX} = x{self.forVezesX} + "
                 else:
                     return f"; {self.sendoID} = {self.sendoID} + "
             elif token.tipo == "RESERVED_SENDO":
                 return "(int "
+            elif token.tipo == "RESERVED_ENQUANTO":
+                return "while ("
+            elif token.tipo == "RESERVED_FUNCAO":
+                return ""
+            elif token.tipo == "RESERVED_RETORNE":
+                return "return "
+            elif token.tipo == "ID" and self.funcParam:
+                return f"int {token.lexema}"
             else:
                 return token.lexema
 
@@ -135,6 +166,10 @@ class Translator:
             return "vector<string> "
         elif tipo == "BOOL":
             return "bool "
+        elif tipo == "FUNC_VOID":
+            return "void "
+        elif tipo == "FUNC_NUMBER":
+            return "int "
         else:
             return ""
 
@@ -144,10 +179,12 @@ class Translator:
         elif state == "exit":
             return "return 0;\n}\n"
 
-    def cmd(self, state):
+    def cmd(self, node, state):
         if state == "enter":
             return ""
         elif state == "exit":
+            if node.children[0].value == "cmdDefFunc":
+                return ""
             return ";\n"
         
     def cmdID(self, node, state):
@@ -204,20 +241,25 @@ class Translator:
                     return ""
             else:
                 return ""
+            
+    def cmdFor(self, state):
+        if state == "enter":
+            self.forVezesX += 1
+            return ""
+        elif state == "exit":
+            self.forVezesX -= 1
+            return ""
         
     def forVezes(self, node, state):
         if state == "enter":
-            print("entrou")
-            self.forVezesX += 1
             return f"(int x{self.forVezesX} = 0; x{self.forVezesX} < "
         elif state == "exit":
-            self.forVezesX -= 1
             return ""
         
     def forIntervalo(self, node, state):
         if state == "enter":
             if not self.isSendo:
-                return "(int i "
+                return f"(int x{self.forVezesX} "
             else:
                 return ""
         elif state == "exit":
@@ -225,7 +267,7 @@ class Translator:
                 if self.isSendo:
                     return f"; {self.sendoID}++)"
                 else:
-                    return "; i++) "
+                    return f"; x{self.forVezesX}++) "
             else:
                 return ")"
             
@@ -238,13 +280,84 @@ class Translator:
             self.isSendo = False
             self.sendoID = None
             return ""
-
+        
+    def cmdWhile(self, state):
+        if state == "enter":
+            self.isWhile = True
+            return ""
+        elif state == "exit":
+            return ""
+        
+    def valor(self, node, state):
+        if state == "enter":
+            return ""
+        elif state == "exit":
+            if self.isWhile:
+                self.isWhile = False
+                return f")"
+            else:
+                return ""
+            
+    def cmdDefFunc(self, node, state, function=False):
+        if state == "enter":
+            if not function:
+                self.stopTranslation = True
+            return self.translate_type(node.children[1].value.lexema)
+        elif state == "exit":
+            self.stopTranslation = False
+            return "\n"
+        
+    def listaParametros(self, node, state):
+        if state == "enter":
+            self.funcParam = True
+            return ""
+        elif state == "exit":
+            self.funcParam = False
+            return ""
+        
+    def cmdInput(self, node, state):
+        if state == "enter":
+            self.isInput = True
+            return ""
+        elif state == "exit":
+            self.isInput = False
+            return ""
+        
+    def corpoLista(self, node, state):
+        if state == "enter":
+            return ""
+        elif state == "exit":
+            if self.isInput and len(node.children) == 0:
+                return '""'
+            else:
+                return ""
+            
 class Converter:
     def __init__(self, tree, type_hash):
         self.tree = tree
         self.type_hash = type_hash
         self.declaration_hash = {}
         self.translator = Translator(self.type_hash, self.declaration_hash)
+        self.defFunc = [False]
+
+    def translate_functions(self, node):
+
+        if node.type == "rule" and node.value == "cmdDefFunc":
+            self.defFunc = [True]
+
+        if self.defFunc[0]:
+            self.write(node, "enter", True)
+
+            for child in node.children:
+                self.translate_functions(child)
+            
+            self.write(node, "exit", True)
+        else:
+            for child in node.children:
+                self.translate_functions(child)
+
+        if node.type == "rule" and node.value == "cmdDefFunc":
+            self.defFunc = [False]
 
     def pre_order(self, node):
         
@@ -255,9 +368,9 @@ class Converter:
         
         self.write(node, "exit")
 
-    def write(self, node, state):
+    def write(self, node, state, function=False):
         file = open("output.cpp", "a")
-        file.write(self.translator.translate(node, state))
+        file.write(self.translator.translate(node, state, function))
         file.close()
 
     def create_file(self):
@@ -269,9 +382,9 @@ class Converter:
         file.write("#include <cmath>\n")
         file.write("using namespace std;\n\n")
         file.write("#define pass (void)0\n\n")
-        file.write("string userInput() {\n")
+        file.write("string userInput(string message) {\n")
         file.write("    string input;\n")
-        file.write('    cout << "Enter a string: ";\n')
+        file.write('    cout << message;\n')
         file.write("    cin >> input;\n")
         file.write("    return input;\n")
         file.write("}\n")
@@ -279,4 +392,5 @@ class Converter:
     
     def convert(self):
         self.create_file()
+        self.translate_functions(self.tree.root)
         self.pre_order(self.tree.root)
