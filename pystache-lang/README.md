@@ -1,65 +1,49 @@
-# pystache-lang README
+<p align="center">
+  <img src="https://github.com/gb-cs-rt/projeto_compiladores/blob/main/assets/banner.png" alt="Pystache Banner">
+</p>
 
-This is the README for your extension "pystache-lang". After writing up a brief description, we recommend including the following sections.
+Pystache é uma linguagem de programação de alto nível projetada para ser acessível a programadores de todos os níveis de experiência. Com palavras-chave em português, a linguagem facilita o aprendizado para iniciantes.
 
-## Features
+## Principais Características
+- **Linguagem em Português (PT-BR)**
+- **Linguagem com indentação**
+- **Variados tipos de iteradores**
+- **Tipagem implícita** (realiza auto-casting)
+- **Extensão para o VSCode**, que simplifica o uso da linguagem
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+## Primeiros Passos
 
-For example if there is an image subfolder under your extension project workspace:
+### Sistemas Operacionais Suportados
+- ![Ubuntu 22 Shield](https://img.shields.io/badge/Ubuntu-22.04-orange)
 
-\!\[feature X\]\(images/feature-x.png\)
+### Pré-requisitos
+- **G++**
+- **Python 3.10** ou mais recente
+- **Git**
+- **VSCode** (caso deseje utilizar a extensão)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+### Instalação
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/gb-cs-rt/projeto_compiladores
 
-## Requirements
+2. Conceda permissão de execução e rode o script de instalação:
+   ```bash
+   chmod +x install.sh && ./install.sh
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+3. Crie um arquivo com a extensão ```.pyst``` e execute o compilador:
+   ```bash
+   pystache <nome_do_arquivo.pyst>
 
-## Extension Settings
+### Extensão para VSCode
+1. Acesse o Marketplace de extensões do VSCode e pesquise por **Pystache**.
+2. Instale a extensão e abra um arquivo com a extensão ```.pyst```. A extensão fornece:
+- Syntax highlighting específico para a linguagem
+- Atalho para compilar e rodar o código rapidamente (necessário ter a linguagem instalada)
+- Tema de cor personalizado
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## Opções adicionais
 
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+### Flags
+- ```pystache <nome_do_arquivo.pyst> -tree``` - Exibe a árvore sintática do código fonte.
+- ```pystache <nome_do_arquivo.pyst> -tokens``` - Exibe a lista de tokens reconhecidos no código fonte.
