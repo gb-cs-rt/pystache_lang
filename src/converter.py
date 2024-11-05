@@ -13,6 +13,7 @@ class Translator:
         self.funcParam = False
         self.forVezesX = 0
         self.stopTranslation = False
+        self.isAcessoLista = False
     
     def translate(self, node, state, function=False):
 
@@ -61,6 +62,10 @@ class Translator:
             return self.cmdDefFunc(node, state, function)
         elif rule == "listaParametros":
             return self.listaParametros(node, state)
+        elif rule == "fator":
+            return self.fator(node, state)
+        elif rule == "acessoLista":
+            return self.acessoLista(node, state)
         else:
             return ""
         
@@ -87,8 +92,12 @@ class Translator:
             elif token.tipo == "RESERVED_ENTRADA":
                 return "userInput"
             elif token.tipo == "OPEN_BRACKET":
+                if self.isAcessoLista:
+                    return "["
                 return "{"
             elif token.tipo == "CLOSE_BRACKET":
+                if self.isAcessoLista:
+                    return "]"
                 return "}"
             elif token.tipo == "PLUS_ASSIGN":
                 return "+="
@@ -106,6 +115,10 @@ class Translator:
                 return "= pow("
             elif token.tipo == "RESERVED_PASSE":
                 return "pass"
+            elif token.tipo == "DIV_INT":
+                return " / "
+            elif token.tipo == "EQUALS":
+                return " == "
             elif token.tipo == "BOOL":
                 if token.lexema == "verdadeiro":
                     return "true"
@@ -137,6 +150,10 @@ class Translator:
                 return "return "
             elif token.tipo == "ID" and self.funcParam:
                 return f"int {token.lexema}"
+            elif token.tipo == "RESERVED_PARE":
+                return "break"
+            elif token.tipo == "POW":
+                return ", "
             else:
                 return token.lexema
 
@@ -165,12 +182,14 @@ class Translator:
             return "void "
         elif tipo == "FUNC_NUMBER":
             return "int "
+        elif tipo == "FUNC_DOUBLE":
+            return "double "
         else:
             return ""
 
     def prog(self, state):
         if state == "enter":
-            return "int main() {\n"
+            return "\nint main() {\n"
         elif state == "exit":
             return "return 0;\n}\n"
 
@@ -300,7 +319,24 @@ class Translator:
             return self.translate_type(node.children[1].value.lexema)
         elif state == "exit":
             self.stopTranslation = False
-            return "\n"
+            if function:
+                return "\n\n"
+            else:
+                return ""
+            
+    def fator(self, node, state):
+        if state == "enter":
+            if len(node.children) == 1:
+                return ""
+            if node.children[1].value == "opPow":
+                return "pow("
+            return ""
+        elif state == "exit":
+            if len(node.children) == 1:
+                return ""
+            if node.children[1].value == "opPow":
+                return ")"
+            return ""
         
     def listaParametros(self, node, state):
         if state == "enter":
@@ -308,6 +344,14 @@ class Translator:
             return ""
         elif state == "exit":
             self.funcParam = False
+            return ""
+        
+    def acessoLista(self, node, state):
+        if state == "enter":
+            self.isAcessoLista = True
+            return ""
+        elif state == "exit":
+            self.isAcessoLista = False
             return ""
             
 class Converter:
@@ -357,7 +401,7 @@ class Converter:
         file.write("#include <string>\n")
         file.write("#include <vector>\n")
         file.write("#include <cstdio>\n")
-        file.write("#include <cmath>\n")
+        file.write("#include <cmath>\n\n")
         file.write("using namespace std;\n\n")
         file.write("#define pass (void)0\n\n")
         file.write("string userInput(string message = \"\") {\n")
@@ -365,13 +409,19 @@ class Converter:
         file.write('    cout << message;\n')
         file.write("    cin >> input;\n")
         file.write("    return input;\n")
-        file.write("}\n")
+        file.write("}\n\n")
         file.write("int entradaNumero(string message = \"\") {\n")
         file.write("    int input;\n")
         file.write('    cout << message;\n')
         file.write("    cin >> input;\n")
         file.write("    return input;\n")
-        file.write("}\n")
+        file.write("}\n\n")
+        file.write("double entradaReal(string message = \"\") {\n")
+        file.write("    double input;\n")
+        file.write('    cout << message;\n')
+        file.write("    cin >> input;\n")
+        file.write("    return input;\n")
+        file.write("}\n\n")
         file.close()
     
     def convert(self):

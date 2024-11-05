@@ -38,6 +38,7 @@ class Rules:
         node = self.addNode("cmd", parent_node)
         if self.firstFollow("RESERVED_SE"): return self.cmdIf(node)
         if self.firstFollow("RESERVED_PASSE"): return self.matchTipo("RESERVED_PASSE", node) 
+        if self.firstFollow("RESERVED_PARE"): return self.matchTipo("RESERVED_PARE", node)
         if self.firstFollow("ID"): return self.cmdID(node)
         if self.firstFollow("RESERVED_REPITA"): return self.cmdFor(node)
         if self.firstFollow("RESERVED_ENQUANTO"): return self.cmdWhile(node)

@@ -393,6 +393,9 @@ class Lexer:
         self.code.next()
         space_count = 0
 
+        while self.code.current() == '\n':
+            self.code.next()
+
         while self.code.current() == ' ' or self.code.current() == '\t':
 
             if self.code.current() == '\t':

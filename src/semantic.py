@@ -6,7 +6,7 @@ class Semantic:
     def __init__(self, tree, code):
         self.tree = tree
         self.code = CharacterIterator(code)
-        self.type_hash = {"entradaNumero": "FUNC_NUMBER"}
+        self.type_hash = {"entradaNumero": "FUNC_NUMBER", "entradaDouble": "FUNC_DOUBLE"}
         self.forVezesX = 0
 
     def check(self, node):
@@ -28,7 +28,7 @@ class Semantic:
                 id_token = node.children[1]
                 token_type = self.check_cmdDefFunc(node.children[6].children[0].children[0])
                 if id_token.value.lexema not in self.type_hash:
-                    self.type_hash[id_token.value.lexema] = f"FUNC_{token_type}"
+                    self.type_hash[id_token.value.lexema] = f"FUNC_VOID" if token_type == "VOID" else f"FUNC_DOUBLE"
                 else:
                     self.error(f"função '{id_token.value.lexema}' já declarada", id_token.value.linha)
 
@@ -126,8 +126,17 @@ class Semantic:
             token_type = "STRING"
         elif token_type == "FUNC_NUMBER":
             return "NUMBER"
+        elif token_type == "FUNC_DOUBLE":
+            return "DOUBLE"
+        elif token_type == "LIST_STRING":
+            return "STRING"
+        elif token_type == "LIST_NUMBER":
+            return "NUMBER"
+        elif token_type == "LIST_DOUBLE":
+            return "DOUBLE"
         elif token_type == "FUNC_VOID":
             raise Exception("Erro Semântico: função sem retorno na expressão")
+        
 
         for element in elements:
             if element.value.tipo == "ID":

@@ -1,2 +1,6 @@
-a: 1 + 2
-b: a - 2
+funcao hello()
+    exiba("Hello, World!\n")
+
+hello()
+
+a: 1
