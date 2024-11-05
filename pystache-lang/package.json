@@ -5,7 +5,7 @@
   "icon": "./images/icon.png",
   "repository": "https://github.com/gb-cs-rt/projeto_compiladores/tree/main",
   "description": "Syntax highlighting for pystache lang",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.92.0"
   },
@@ -16,21 +16,30 @@
   "activationEvents": [],
   "main": "./extension.js",
   "contributes": {
-    "languages": [{
-      "id": "pystache",
-      "aliases": ["Pystache", "pystache"],
-      "extensions": [".pyst"],
-      "configuration": "./language-configuration.json",
-      "icon": {
+    "languages": [
+      {
+        "id": "pystache",
+        "aliases": [
+          "Pystache",
+          "pystache"
+        ],
+        "extensions": [
+          ".pyst"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
           "light": "./images/icon.png",
           "dark": "./images/icon.png"
+        }
       }
-    }],
-    "grammars": [{
-      "language": "pystache",
-      "scopeName": "source.pyst",
-      "path": "./syntaxes/pystache.tmLanguage.json"
-    }],
+    ],
+    "grammars": [
+      {
+        "language": "pystache",
+        "scopeName": "source.pyst",
+        "path": "./syntaxes/pystache.tmLanguage.json"
+      }
+    ],
     "themes": [
       {
         "label": "Pystache",
@@ -38,18 +47,20 @@
         "path": "./themes/Pystache-color-theme.json"
       }
     ],
-    "commands": [{
-      "command": "pystache-lang.runFile",
-      "title": "Run Pystache File",
-      "icon": {
+    "commands": [
+      {
+        "command": "pystache-lang.runFile",
+        "title": "Run Pystache File",
+        "icon": {
           "light": "images/runFile.png",
           "dark": "images/runFile.png"
         }
-    }],
+      }
+    ],
     "scripts": {
-    "lint": "eslint .",
-    "pretest": "npm run lint",
-    "test": "vscode-test"
+      "lint": "eslint .",
+      "pretest": "npm run lint",
+      "test": "vscode-test"
     },
     "devDependencies": {
       "@types/vscode": "^1.92.0",
