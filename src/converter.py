@@ -13,7 +13,6 @@ class Translator:
         self.funcParam = False
         self.forVezesX = 0
         self.stopTranslation = False
-        self.isInput = False
     
     def translate(self, node, state, function=False):
 
@@ -62,10 +61,6 @@ class Translator:
             return self.cmdDefFunc(node, state, function)
         elif rule == "listaParametros":
             return self.listaParametros(node, state)
-        elif rule == "cmdInput":
-            return self.cmdInput(node, state)
-        elif rule == "corpoLista":
-            return self.corpoLista(node, state)
         else:
             return ""
         
@@ -314,23 +309,6 @@ class Translator:
         elif state == "exit":
             self.funcParam = False
             return ""
-        
-    def cmdInput(self, node, state):
-        if state == "enter":
-            self.isInput = True
-            return ""
-        elif state == "exit":
-            self.isInput = False
-            return ""
-        
-    def corpoLista(self, node, state):
-        if state == "enter":
-            return ""
-        elif state == "exit":
-            if self.isInput and len(node.children) == 0:
-                return '""'
-            else:
-                return ""
             
 class Converter:
     def __init__(self, tree, type_hash):
@@ -382,8 +360,14 @@ class Converter:
         file.write("#include <cmath>\n")
         file.write("using namespace std;\n\n")
         file.write("#define pass (void)0\n\n")
-        file.write("string userInput(string message) {\n")
+        file.write("string userInput(string message = \"\") {\n")
         file.write("    string input;\n")
+        file.write('    cout << message;\n')
+        file.write("    cin >> input;\n")
+        file.write("    return input;\n")
+        file.write("}\n")
+        file.write("int entradaNumero(string message = \"\") {\n")
+        file.write("    int input;\n")
         file.write('    cout << message;\n')
         file.write("    cin >> input;\n")
         file.write("    return input;\n")

@@ -6,7 +6,7 @@ class Semantic:
     def __init__(self, tree, code):
         self.tree = tree
         self.code = CharacterIterator(code)
-        self.type_hash = {}
+        self.type_hash = {"entradaNumero": "FUNC_NUMBER"}
         self.forVezesX = 0
 
     def check(self, node):
@@ -17,6 +17,10 @@ class Semantic:
 
                 if id_token.value.lexema not in self.type_hash:
                     self.type_hash[id_token.value.lexema] = token_type
+                else:
+                    if self.type_hash[id_token.value.lexema] != token_type:
+                        self.error(f"variável '{id_token.value.lexema}' já declarada com outro tipo", id_token.value.linha)
+                        
             if node.value == "cmdFor":
                 self.check_cmdFor(node, "enter")
             if node.value == "cmdDefFunc":
@@ -120,6 +124,10 @@ class Semantic:
 
         if token_type == "RESERVED_ENTRADA":
             token_type = "STRING"
+        elif token_type == "FUNC_NUMBER":
+            return "NUMBER"
+        elif token_type == "FUNC_VOID":
+            raise Exception("Erro Semântico: função sem retorno na expressão")
 
         for element in elements:
             if element.value.tipo == "ID":
