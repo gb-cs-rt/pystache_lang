@@ -101,6 +101,18 @@ class Semantic:
             if element.value.tipo == "ID":
                 if element.value.lexema not in self.type_hash[-1]:
                     self.error(f"variável '{element.value.lexema}' não declarada neste escopo,", element.value.linha)
+
+    def onlyNumbers(self, elements):
+        for element in elements:
+            if element.value.tipo == "ID":
+                if element.value.lexema not in self.type_hash[-1]:
+                    self.error(f"variável '{element.value.lexema}' não declarada neste escopo,", element.value.linha)
+                else:
+                    if self.type_hash[-1][element.value.lexema] != "NUMBER":
+                        self.error(f"variável '{element.value.lexema}' não é um inteiro,", element.value.linha)
+            else:
+                if element.value.tipo != "NUMBER":
+                    self.error(f"expressão com tipos incompatíveis, ", element.value.linha)
     
     def check_cmdDefFunc(self, node):
         isReturn = [False]
@@ -119,6 +131,13 @@ class Semantic:
             self.findReturn(child, isReturn)
     
     def check_cmdFor(self, node, state):
+
+        if state == "enter":
+            elements = []
+            self.get_elements(node.children[1], elements, False, False)
+            self.onlyNumbers(elements)
+            print([element.value.lexema for element in elements])
+        
         if node.children[1].children[0].value == "forVezes" or node.children[1].children[0].value == "forIntervalo":
             if state == "enter":
                 self.forVezesX += 1
