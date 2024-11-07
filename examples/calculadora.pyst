@@ -16,6 +16,9 @@ funcao resto(a, b)
 funcao potencia(a, b)
     retorne a ^ b
 
+funcao divisaoInteiro(a, b)
+    retorne a // b
+
 enquanto verdadeiro
 
     exiba("---- CALCULADORA ----\n")
@@ -25,11 +28,12 @@ enquanto verdadeiro
     exiba("4 - Divisão\n")
     exiba("5 - Resto\n")
     exiba("6 - Potência\n")
-    exiba("7 - Sair\n")
+    exiba("7 - Divisão Inteira\n")
+    exiba("0 - Sair\n")
     exiba("Digite a opção desejada: ")
     opcao: entradaNumero()
 
-    se opcao = 7 entao
+    se opcao = 0 entao
         pare
 
     exiba("\nDigite o primeiro número inteiro: ")
@@ -55,5 +59,8 @@ enquanto verdadeiro
     se opcao = 6 entao
         exiba("\nO resultado da potência é: %.2f\n\n", potencia(n1, n2))
 
-    se opcao < 1 | opcao > 7 entao
+    se opcao = 7 entao
+        exiba("\nO resultado da divisão inteira é: %.2f\n\n", divisaoInteiro(n1, n2))
+
+    se opcao < 0 | opcao > 7 entao
         exiba("\nOpção inválida.\n\n")
