@@ -14,6 +14,7 @@ class Translator:
         self.forVezesX = 0
         self.stopTranslation = False
         self.isAcessoLista = False
+        self.scopeID = 0
     
     def translate(self, node, state, function=False):
 
@@ -61,7 +62,7 @@ class Translator:
         elif rule == "cmdDefFunc":
             return self.cmdDefFunc(node, state, function)
         elif rule == "listaParametros":
-            return self.listaParametros(node, state)
+            return self.listaParametros(node, state, function)
         elif rule == "fator":
             return self.fator(node, state)
         elif rule == "acessoLista":
@@ -163,7 +164,7 @@ class Translator:
             return ""
         
     def translate_type(self, lexema):
-        tipo = self.type_hash[lexema]
+        tipo = self.type_hash[self.scopeID][lexema]
         if tipo == "NUMBER":
             return "int "
         elif tipo == "DOUBLE":
@@ -206,7 +207,6 @@ class Translator:
     def cmdID(self, node, state):
         
         if state == "enter":
-            print("scope", self.scope_pile)
             if node.children[2].children[0].children[0].value == "atribComum":
                 if node.children[0].value.lexema not in self.scope_pile[-1]:
                     self.scope_pile[-1][node.children[0].value.lexema] = True
@@ -252,7 +252,7 @@ class Translator:
             return ""
         elif state == "exit":
             if self.isPrint:
-                if node.children[0].value.tipo == "ID" and self.type_hash[node.children[0].value.lexema] == "STRING":
+                if node.children[0].value.tipo == "ID" and self.type_hash[self.scopeID][node.children[0].value.lexema] == "STRING":
                     return f'.c_str()'
                 else:
                     return ""
@@ -261,9 +261,14 @@ class Translator:
             
     def cmdFor(self, state):
         if state == "enter":
+            self.scopeID += 1
+            actual_scope = self.scope_pile[-1]
+            self.scope_pile.append(actual_scope.copy())
             self.forVezesX += 1
             return ""
         elif state == "exit":
+            self.scopeID += 1
+            self.scope_pile.pop()
             self.forVezesX -= 1
             return ""
         
@@ -300,9 +305,14 @@ class Translator:
         
     def cmdWhile(self, state):
         if state == "enter":
+            self.scopeID += 1
+            actual_scope = self.scope_pile[-1]
+            self.scope_pile.append(actual_scope.copy())
             self.isWhile = True
             return ""
         elif state == "exit":
+            self.scopeID += 1
+            self.scope_pile.pop()
             return ""
         
     def valor(self, node, state):
@@ -323,6 +333,8 @@ class Translator:
         elif state == "exit":
             self.stopTranslation = False
             if function:
+                self.scopeID += 1
+                self.scope_pile.pop()
                 return "\n\n"
             else:
                 return ""
@@ -341,9 +353,12 @@ class Translator:
                 return ")"
             return ""
         
-    def listaParametros(self, node, state):
+    def listaParametros(self, node, state, function=False):
         if state == "enter":
-            self.funcParam = True
+            if function:
+                self.scopeID += 1
+                self.scope_pile.append({})
+                self.funcParam = True
             return ""
         elif state == "exit":
             self.funcParam = False
@@ -359,10 +374,12 @@ class Translator:
         
     def cmdIf(self, node, state):
         if state == "enter":
+            self.scopeID += 1
             actual_scope = self.scope_pile[-1]
             self.scope_pile.append(actual_scope.copy())
             return ""
         elif state == "exit":
+            self.scopeID += 1
             self.scope_pile.pop()
             return ""
             

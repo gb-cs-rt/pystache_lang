@@ -1,20 +1,20 @@
 funcao soma(a, b)
     retorne a + b
 
-funcao subtracao(c, d)
-    retorne c - d
+funcao subtracao(a, b)
+    retorne a - b
 
-funcao multiplicacao(e, f)
-    retorne e * f
+funcao multiplicacao(a, b)
+    retorne a * b
 
-funcao divisao(g, h)
-    retorne g / h
+funcao divisao(a, b)
+    retorne a / b
 
-funcao resto(i, j)
-    retorne i % j
+funcao resto(a, b)
+    retorne a % b
 
-funcao potencia(k, l)
-    retorne k ^ l
+funcao potencia(a, b)
+    retorne a ^ b
 
 enquanto verdadeiro
 
@@ -38,22 +38,22 @@ enquanto verdadeiro
     n2: entradaNumero()
 
     se opcao = 1 entao
-        exiba("\nO resultado da soma é: %f\n\n", soma(n1, n2))
+        exiba("\nO resultado da soma é: %.2f\n\n", soma(n1, n2))
 
     se opcao = 2 entao
-        exiba("O resultado da subtração é: %f\n\n", subtracao(n1, n2))
+        exiba("\nO resultado da subtração é: %.2f\n\n", subtracao(n1, n2))
 
     se opcao = 3 entao
-        exiba("O resultado da multiplicação é: %f\n\n", multiplicacao(n1, n2))
+        exiba("\nO resultado da multiplicação é: %.2f\n\n", multiplicacao(n1, n2))
 
     se opcao = 4 entao
-        exiba("O resultado da divisão é: %f\n\n", divisao(n1, n2))
+        exiba("\nO resultado da divisão é: %.2f\n\n", divisao(n1, n2))
 
     se opcao = 5 entao
-        exiba("O resultado do resto é: %f\n\n", resto(n1, n2))
+        exiba("\nO resultado do resto é: %.2f\n\n", resto(n1, n2))
 
     se opcao = 6 entao
-        exiba("O resultado da potência é: %f\n\n", potencia(n1, n2))
+        exiba("\nO resultado da potência é: %.2f\n\n", potencia(n1, n2))
 
     se opcao < 1 | opcao > 7 entao
-        exiba("Opção inválida.\n\n")
+        exiba("\nOpção inválida.\n\n")

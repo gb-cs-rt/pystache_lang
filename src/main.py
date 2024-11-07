@@ -6,6 +6,7 @@ from converter import Converter
 from pprint import pp
 import argparse
 import os
+import subprocess
 
 def main():
 
@@ -49,8 +50,9 @@ def main():
                 converter = Converter(parserTree, typeHash)
                 converter.convert()
 
-                os.system("g++ output.cpp -o output")
-                os.system("./output")
+                compile_result = subprocess.run(["g++", "output.cpp", "-o", "output"])
+                if compile_result.returncode == 0:
+                    subprocess.run(["./output"])
 
 if __name__ == '__main__':
     main()
