@@ -8,6 +8,9 @@ repita a vezes
 se a = 1 entao
     exiba("Hello, World!\n")
 
+enquanto a > 3
+    exiba("Hello, World!\n")
+
 a: b + 2
 
 -=| atribuição de valor imcompatível com o tipo da variável

@@ -125,7 +125,7 @@ class Translator:
             elif token.tipo == "BOOL":
                 if token.lexema == "verdadeiro":
                     return "true"
-                elif token.lexema == "false":
+                elif token.lexema == "falso":
                     return "false"
             elif token.tipo == "RESERVED_REPITA":
                 return "for "

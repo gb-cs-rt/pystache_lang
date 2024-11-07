@@ -40,6 +40,9 @@ class Semantic:
             if node.value == "cmdFor":
                 self.check_cmdFor(node, "enter")
 
+            if node.value == "cmdWhile":
+                self.check_cmdWhile(node, "enter")
+
             if node.value == "cmdIf":
                 self.check_cmdIf(node, "enter")
 
@@ -265,6 +268,13 @@ class Semantic:
             return "STRING"
         else:
             return token_type
+        
+    def check_cmdWhile(self, node, state):
+            
+        if state == "enter":
+            elements = []
+            self.get_elements(node.children[1], elements, False, False)
+            self.check_IDs(elements)
     
     def error(self, message, line):
         print(f"Erro Semântico: {message} na linha {line}:")
