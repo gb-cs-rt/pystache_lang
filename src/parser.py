@@ -47,11 +47,18 @@ class Rules:
         if self.firstFollow("RESERVED_EXIBA"): return self.cmdPrint(node)
         if self.firstFollow("RESERVED_ENTRADA"): return self.cmdInput(node)
         return self.error(node)
+    
+    def acessoListaOp(self, parent_node):
+        # acessoListaOp -> acessoLista | ε
+        node = self.addNode("acessoListaOp", parent_node)
+        if self.firstFollow("OPEN_BRACKET"):
+            return True if self.acessoLista(node) else self.error(node)
+        return True
 
     def cmdID(self, parent_node):
-        # cmdID -> ID complemento
+        # cmdID -> ID acessoListaOp complemento
         node = self.addNode("cmdID", parent_node)
-        return True if self.matchTipo("ID", node) and self.complemento(node) else self.error(node)
+        return True if self.matchTipo("ID", node) and self.acessoListaOp(node) and self.complemento(node) else self.error(node)
 
     def cmdIf(self, parent_node):
         # cmdIf -> RESERVED_SE valor RESERVED_ENTAO INDENT bloco DEDENT cmdElse

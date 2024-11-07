@@ -2,9 +2,9 @@ from utils import Tree
 
 class Translator:
 
-    def __init__(self, type_hash, declaration_hash):
+    def __init__(self, type_hash, scope_pile):
         self.type_hash = type_hash
-        self.declaration_hash = declaration_hash
+        self.scope_pile = scope_pile
         self.lastId = None
         self.isPrint = False
         self.isWhile = False
@@ -66,6 +66,8 @@ class Translator:
             return self.fator(node, state)
         elif rule == "acessoLista":
             return self.acessoLista(node, state)
+        elif rule == "cmdIf":
+            return self.cmdIf(node, state)
         else:
             return ""
         
@@ -204,9 +206,10 @@ class Translator:
     def cmdID(self, node, state):
         
         if state == "enter":
-            if node.children[1].children[0].children[0].value == "atribComum":
-                if node.children[0].value.lexema not in self.declaration_hash:
-                    self.declaration_hash[node.children[0].value.lexema] = True
+            print("scope", self.scope_pile)
+            if node.children[2].children[0].children[0].value == "atribComum":
+                if node.children[0].value.lexema not in self.scope_pile[-1]:
+                    self.scope_pile[-1][node.children[0].value.lexema] = True
                     return self.translate_type(node.children[0].value.lexema)
                 else:
                     return ""
@@ -353,13 +356,22 @@ class Translator:
         elif state == "exit":
             self.isAcessoLista = False
             return ""
+        
+    def cmdIf(self, node, state):
+        if state == "enter":
+            actual_scope = self.scope_pile[-1]
+            self.scope_pile.append(actual_scope.copy())
+            return ""
+        elif state == "exit":
+            self.scope_pile.pop()
+            return ""
             
 class Converter:
     def __init__(self, tree, type_hash):
         self.tree = tree
         self.type_hash = type_hash
-        self.declaration_hash = {}
-        self.translator = Translator(self.type_hash, self.declaration_hash)
+        self.scope_pile = [{}]
+        self.translator = Translator(self.type_hash, self.scope_pile)
         self.defFunc = [False]
 
     def translate_functions(self, node):

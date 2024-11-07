@@ -11,14 +11,18 @@ class Semantic:
 
     def check(self, node):
         if node.type == "rule":
-            if node.value == "cmdID" and node.children[1].children[0].value == "cmdAtrib":
+            if node.value == "cmdID" and node.children[2].children[0].value == "cmdAtrib":
                 id_token = node.children[0]
-                token_type = self.check_cmdAtrib(node.children[1].children[0])
-
+                token_type = self.check_cmdAtrib(node.children[2].children[0])
                 if id_token.value.lexema not in self.type_hash:
                     self.type_hash[id_token.value.lexema] = token_type
                 else:
-                    if self.type_hash[id_token.value.lexema] != token_type:
+                    if len(node.children[1].children) > 0:
+                        if self.type_hash[id_token.value.lexema][:4] != "LIST":
+                            self.error(f"variável '{id_token.value.lexema}' não é uma lista,", id_token.value.linha)
+                        if self.type_hash[id_token.value.lexema] != f"LIST_{token_type}":
+                            self.error(f"lista '{id_token.value.lexema}' já declarada com outro tipo", id_token.value.linha)
+                    elif self.type_hash[id_token.value.lexema] != token_type:
                         self.error(f"variável '{id_token.value.lexema}' já declarada com outro tipo", id_token.value.linha)
                         
             if node.value == "cmdFor":
