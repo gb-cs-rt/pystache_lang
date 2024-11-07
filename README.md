@@ -9,6 +9,7 @@ Pystache é uma linguagem de programação de alto nível projetada para ser ace
 - **Linguagem com indentação**
 - **Variados tipos de iteradores**
 - **Tipagem implícita** (realiza auto-casting)
+- **Escopo**
 - **Extensão para o VSCode**, que simplifica o uso da linguagem
 
 ## Primeiros Passos
