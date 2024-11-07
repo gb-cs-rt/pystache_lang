@@ -11,6 +11,8 @@ se a = 1 entao
 enquanto a > 3
     exiba("Hello, World!\n")
 
+a +: 1
+
 a: b + 2
 
 -=| atribuição de valor imcompatível com o tipo da variável
@@ -58,3 +60,10 @@ repita "10" vezes
 
 repita de 0 ate 10 passo "2"
     exiba("Hello, World!\n")
+
+-=| módulo com elementos não inteiros
+
+a: 1
+b: 2.5
+
+c: a % b

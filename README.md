@@ -6,10 +6,10 @@ Pystache é uma linguagem de programação de alto nível projetada para ser ace
 
 ## Principais Características
 - **Linguagem em Português (PT-BR)**
-- **Linguagem com indentação**
+- **Linguagem indentada** (indentação faz parte da gramática)
 - **Variados tipos de iteradores**
 - **Tipagem implícita** (realiza auto-casting)
-- **Escopo**
+- **Controle de escopo**
 - **Extensão para o VSCode**, que simplifica o uso da linguagem
 
 ## Primeiros Passos
@@ -48,6 +48,7 @@ Pystache é uma linguagem de programação de alto nível projetada para ser ace
 ### Flags
 - ```pystache <nome_do_arquivo.pyst> -tree``` - Exibe a árvore sintática do código fonte.
 - ```pystache <nome_do_arquivo.pyst> -tokens``` - Exibe a lista de tokens reconhecidos no código fonte.
+- ```pystache <nome_do_arquivo.pyst> -hash``` - Exibe o dicionário de tipos atribuídos às variáveis.
 
 ## Expressões Regulares
 - id:

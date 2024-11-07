@@ -1,0 +1,106 @@
+-=| declaração de variável
+
+a: 1 -=| atribuição embutida
+b: 2.5
+texto: "Olá, mundo!"
+lista: [1, 2, 3]
+
+-=| entrada de dados
+
+n1: entradaNumero("Insira um número inteiro: ")
+n2: entradaReal("Insira um número real: ")
+n3: entrada("Insira um texto: ")
+
+-=| saída de dados
+
+exiba("\nO valor de n3 é %s\n\n", n3)
+
+-=| operadores
+
+soma: a + b
+subtracao: a - b
+multiplicacao: a * b
+divisao: a / b
+divisaoInteira: a // b
+modulo: a % 2
+potencia: a ^ b
+
+-=| operadores relacionais
+
+igual: a = b
+diferente: a != b
+maior: a > b
+menor: a < b
+maiorIgual: a >= b
+menorIgual: a <= b
+
+-=| atribuição com operação
+
+a +: 1
+a -: 1
+a *: 2
+a /: 2
+a //: 2
+a %: 2
+a ^: 2
+
+-=| if else
+
+se a > b entao
+    exiba("a é maior que b\n\n")
+senao
+    exiba("b é maior que a\n\n")
+
+-=| for
+
+repita 10 vezes
+    exiba("essa é a repetição número %d\n", x1)
+
+    se x1 = 5 entao
+        exiba("fim.\n\n")
+        pare
+
+repita de 0 ate n1
+    exiba("essa é a repetição número %d\n", x1)
+
+    se x1 = n1 entao
+        exiba("fim.\n\n")
+
+repita sendo i de 0 ate 10
+    exiba("essa é a repetição número %d\n", i)
+
+    se i = 10 entao
+        exiba("fim.\n\n")
+
+repita de 0 ate 10 passo 2
+    exiba("essa é a repetição número %d\n", x1)
+
+    se x1 = 10 entao
+        exiba("fim.\n\n")
+
+-=| while
+
+enquanto a < n1
+    exiba("a é menor que 10\n")
+    a +: 1
+
+    se a = (n1-1) entao
+        exiba("fim.\n\n")
+
+-=| função
+
+funcao somar(a, b)
+    retorne a + b
+
+resultado: somar(1, 2)
+exiba("O resultado da soma é %f\n\n", resultado)
+
+funcao ping()
+    exiba("pong\n\n")
+
+ping()
+
+-=| acesso à lista
+
+repita sendo i de 0 ate 2
+    exiba("O elemento %d da lista é %d\n", i, lista[i])

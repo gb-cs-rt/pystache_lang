@@ -6,7 +6,7 @@ class Semantic:
     def __init__(self, tree, code):
         self.tree = tree
         self.code = CharacterIterator(code)
-        self.type_hash = [{"entradaNumero": "FUNC_NUMBER", "entradaDouble": "FUNC_DOUBLE"}]
+        self.type_hash = [{"entradaNumero": "FUNC_NUMBER", "entradaReal": "FUNC_DOUBLE"}]
         self.all_scopes = []
         self.forVezesX = 0
 
@@ -15,7 +15,7 @@ class Semantic:
             if func:
                 actual_scope = self.type_hash[-1].copy()
                 self.all_scopes.append(actual_scope.copy())
-                self.type_hash.append({"entradaNumero": "FUNC_NUMBER", "entradaDouble": "FUNC_DOUBLE"})
+                self.type_hash.append({"entradaNumero": "FUNC_NUMBER", "entradaReal": "FUNC_DOUBLE"})
             else:
                 actual_scope = self.type_hash[-1].copy()
                 self.all_scopes.append(actual_scope.copy())
@@ -67,6 +67,11 @@ class Semantic:
 
     def check_cmdID(self, node):
         if node.children[2].children[0].value == "cmdAtrib":
+
+            if node.children[2].children[0].children[0].value == "atribComOp":
+                if node.children[0].value.lexema not in self.type_hash[-1]:
+                    self.error(f"variável '{node.children[0].value.lexema}' não declarada,", node.children[0].value.linha)
+
             id_token = node.children[0]
             token_type = self.check_cmdAtrib(node.children[2].children[0])
             if id_token.value.lexema not in self.type_hash[-1]:
@@ -99,15 +104,17 @@ class Semantic:
             self.type_hash[-1][param] = "NUMBER"
 
     def check_cmdAtrib(self, node):
+
         elements = []
         isList = [False]
         floatDiv = [False]
-        self.get_elements(node, elements, isList, floatDiv)
-        return self.check_elements(elements, isList[0], floatDiv[0])
+        mod = [False]
+        self.get_elements(node, elements, isList, floatDiv, mod)
+        return self.check_elements(elements, isList[0], floatDiv[0], mod[0])
     
     def check_cmdPrint(self, node):
         elements = []
-        self.get_elements(node.children[2], elements, False, False)
+        self.get_elements(node.children[2], elements, False, False, False)
         self.check_IDs(elements)
 
     def check_IDs(self, elements):
@@ -148,14 +155,14 @@ class Semantic:
 
         if state == "enter":
             elements = []
-            self.get_elements(node.children[1], elements, False, False)
+            self.get_elements(node.children[1], elements, False, False, False)
             self.check_IDs(elements)
     
     def check_cmdFor(self, node, state):
 
         if state == "enter":
             elements = []
-            self.get_elements(node.children[1], elements, False, False)
+            self.get_elements(node.children[1], elements, False, False, False)
             self.onlyNumbers(elements)
         
         if node.children[1].children[0].value == "forVezes" or node.children[1].children[0].value == "forIntervalo":
@@ -174,7 +181,7 @@ class Semantic:
                         self.error(f"variável '{node.children[1].children[0].children[1].value.lexema}' já declarada como não inteiro,", node.children[1].children[0].children[1].value.linha)
                 self.type_hash[-1][node.children[1].children[0].children[1].value.lexema] = "NUMBER"
 
-    def get_elements(self, node, elements, isList, floatDiv):
+    def get_elements(self, node, elements, isList, floatDiv, mod):
         if node.type == "rule":
             if node.value == "lista":
                 isList[0] = True
@@ -182,9 +189,13 @@ class Semantic:
 
                 if len(node.children) > 1 and len(node.children[1].children) > 0:
                     if node.children[1].children[0].children[0].value == "chamadaFuncao":
+                        if node.children[0].value.lexema not in self.type_hash[-1]:
+                            self.error(f"função '{node.children[0].value.lexema}' não declarada neste escopo,", node.children[0].value.linha)
                         if self.type_hash[-1][node.children[0].value.lexema][:4] != "FUNC":
                             self.error(f"variável '{node.children[0].value.lexema}' não é uma função,", node.children[0].value.linha)
                     elif node.children[1].children[0].children[0].value == "acessoLista":
+                        if node.children[0].value.lexema not in self.type_hash[-1]:
+                            self.error(f"variável '{node.children[0].value.lexema}' não declarada neste escopo,", node.children[0].value.linha)
                         if self.type_hash[-1][node.children[0].value.lexema][:4] != "LIST":
                             self.error(f"variável '{node.children[0].value.lexema}' não é uma lista,", node.children[0].value.linha)
 
@@ -194,9 +205,11 @@ class Semantic:
             if node.value == "opMul":
                 if node.children[0].value.tipo == "DIV":
                     floatDiv[0] = True
+                if node.children[0].value.tipo == "MOD":
+                    mod[0] = True
 
             for child in node.children:
-                self.get_elements(child, elements, isList, floatDiv)
+                self.get_elements(child, elements, isList, floatDiv, mod)
         
 
     def get_params(self, node, params):
@@ -207,7 +220,7 @@ class Semantic:
             for child in node.children:
                 self.get_params(child, params)
 
-    def check_elements(self, elements, isList, floatDiv):
+    def check_elements(self, elements, isList, floatDiv, mod):
 
         if len(elements) == 0:
             if isList:
@@ -264,6 +277,8 @@ class Semantic:
             return f"LIST_{token_type}"
         if floatDiv:
             return "DOUBLE"
+        if mod:
+            self.onlyNumbers(elements)
         if token_type == "RESERVED_ENTRADA":
             return "STRING"
         else:
@@ -273,7 +288,7 @@ class Semantic:
             
         if state == "enter":
             elements = []
-            self.get_elements(node.children[1], elements, False, False)
+            self.get_elements(node.children[1], elements, False, False, False)
             self.check_IDs(elements)
     
     def error(self, message, line):

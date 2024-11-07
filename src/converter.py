@@ -1,3 +1,5 @@
+from pprint import pprint as pp
+
 class Translator:
 
     def __init__(self, type_hash, scope_pile):
@@ -13,6 +15,8 @@ class Translator:
         self.stopTranslation = False
         self.isAcessoLista = False
         self.scopeID = 0
+        self.translatingFunction = False
+        self.lastTranslatingFunction = False
     
     def translate(self, node, state, function=False):
 
@@ -21,10 +25,20 @@ class Translator:
         else:
             translation = self.translate_token(node, state)
 
-        if self.stopTranslation:
-            return ""
+        if not function:
+            if self.stopTranslation:
+                return ""
+            else:
+                return translation
         else:
-            return translation
+            if self.translatingFunction:
+                self.lastTranslatingFunction = True
+                return translation
+            else:
+                if self.lastTranslatingFunction:
+                    self.lastTranslatingFunction = False
+                    return "\n\n"
+                return ""
 
     def translate_rule(self, node, state, function=False):
 
@@ -167,7 +181,7 @@ class Translator:
     def translate_type(self, lexema):
         # print("-- TRANSLATE TYPE --")
         # print(f"lexema: {lexema}, scopeID: {self.scopeID}")
-        # pp(self.type_hash[self.scopeID])
+        # print(self.type_hash[self.scopeID])
         # print("---------------------")
         tipo = self.type_hash[self.scopeID][lexema]
         if tipo == "NUMBER":
@@ -335,6 +349,8 @@ class Translator:
         if state == "enter":
             if not function:
                 self.stopTranslation = True
+            if function:
+                self.translatingFunction = True
             # print("linha: ", node.children[1].value.linha)
             return self.translate_type(node.children[1].value.lexema)
         elif state == "exit":
@@ -342,6 +358,7 @@ class Translator:
             self.scopeID += 1
             self.scope_pile.pop()
             if function:
+                self.translatingFunction = False
                 return "\n\n"
             else:
                 return ""
@@ -363,7 +380,7 @@ class Translator:
     def listaParametros(self, node, state, function=False):
         if state == "enter":
             self.scopeID += 1
-            self.scope_pile.append({"entradaNumero": True, "entradaDouble": True})
+            self.scope_pile.append({"entradaNumero": True, "entradaReal": True})
             if function:
                 self.funcParam = True
             return ""
@@ -400,22 +417,12 @@ class Converter:
 
     def translate_functions(self, node):
 
-        if node.type == "rule" and node.value == "cmdDefFunc":
-            self.defFunc = [True]
+        self.write(node, "enter", True)
 
-        if self.defFunc[0]:
-            self.write(node, "enter", True)
-
-            for child in node.children:
-                self.translate_functions(child)
-            
-            self.write(node, "exit", True)
-        else:
-            for child in node.children:
-                self.translate_functions(child)
-
-        if node.type == "rule" and node.value == "cmdDefFunc":
-            self.defFunc = [False]
+        for child in node.children:
+            self.translate_functions(child)
+        
+        self.write(node, "exit", True)
 
     def pre_order(self, node):
         
@@ -463,5 +470,6 @@ class Converter:
     def convert(self):
         self.create_file()
         self.translate_functions(self.tree.root)
+        self.translator.scope_pile = [{}]
         self.translator.scopeID = 0
         self.pre_order(self.tree.root)
