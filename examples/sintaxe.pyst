@@ -92,8 +92,8 @@ enquanto a < n1
 funcao somar(a, b)
     retorne a + b
 
-resultado: somar(1, 2)
-exiba("O resultado da soma é %f\n\n", resultado)
+resultado: somar(1, 2) + 2
+exiba("O resultado da soma é %.2f\n\n", resultado)
 
 funcao ping()
     exiba("pong\n\n")
@@ -104,3 +104,5 @@ ping()
 
 repita sendo i de 0 ate 2
     exiba("O elemento %d da lista é %d\n", i, lista[i])
+
+-=| chamada de função em atribuição

@@ -110,6 +110,7 @@ class Semantic:
         floatDiv = [False]
         mod = [False]
         self.get_elements(node, elements, isList, floatDiv, mod)
+
         return self.check_elements(elements, isList[0], floatDiv[0], mod[0])
     
     def check_cmdPrint(self, node):
@@ -162,7 +163,8 @@ class Semantic:
 
         if state == "enter":
             elements = []
-            self.get_elements(node.children[1], elements, False, False, False)
+            insideFuncParams = [False]
+            self.get_elements(node.children[1], elements, False, False, False, insideFuncParams)
             self.onlyNumbers(elements)
         
         if node.children[1].children[0].value == "forVezes" or node.children[1].children[0].value == "forIntervalo":
@@ -181,11 +183,15 @@ class Semantic:
                         self.error(f"variável '{node.children[1].children[0].children[1].value.lexema}' já declarada como não inteiro,", node.children[1].children[0].children[1].value.linha)
                 self.type_hash[-1][node.children[1].children[0].children[1].value.lexema] = "NUMBER"
 
-    def get_elements(self, node, elements, isList, floatDiv, mod):
+    def get_elements(self, node, elements, isList, floatDiv, mod, insideFuncParams=[False]):
         if node.type == "rule":
             if node.value == "lista":
                 isList[0] = True
-            if node.value == "elemento":
+
+            if node.value == "chamadaFuncao":
+                insideFuncParams[0] = True
+
+            if node.value == "elemento" and not insideFuncParams[0]:
 
                 if len(node.children) > 1 and len(node.children[1].children) > 0:
                     if node.children[1].children[0].children[0].value == "chamadaFuncao":
@@ -210,6 +216,9 @@ class Semantic:
 
             for child in node.children:
                 self.get_elements(child, elements, isList, floatDiv, mod)
+
+            if node.value == "chamadaFuncao":
+                insideFuncParams[0] = False
         
 
     def get_params(self, node, params):
@@ -232,7 +241,7 @@ class Semantic:
             if first_token.lexema not in self.type_hash[-1]:
                 self.error(f"variável {first_token.lexema} não declarada neste escopo,", first_token.linha)
                 return None
-            
+
             
             token_type = self.type_hash[-1][first_token.lexema]
         else:
@@ -241,9 +250,9 @@ class Semantic:
         if token_type == "RESERVED_ENTRADA":
             token_type = "STRING"
         elif token_type == "FUNC_NUMBER":
-            return "NUMBER"
+            token_type = "NUMBER"
         elif token_type == "FUNC_DOUBLE":
-            return "DOUBLE"
+            token_type = "DOUBLE"
         elif token_type == "LIST_STRING":
             return "STRING"
         elif token_type == "LIST_NUMBER":
@@ -258,14 +267,20 @@ class Semantic:
             if element.value.tipo == "ID":
                 if element.value.lexema not in self.type_hash[-1]:
                     self.error(f"variável {element.value.lexema} não declarada neste escopo,", element.value.linha)
-                    
-                element_type = self.type_hash[-1][element.value.lexema]
+
+                if self.type_hash[-1][element.value.lexema] == "FUNC_NUMBER":
+                    element_type = "NUMBER"
+                elif self.type_hash[-1][element.value.lexema] == "FUNC_DOUBLE":
+                    element_type = "DOUBLE"
+                else:
+                    element_type = self.type_hash[-1][element.value.lexema]
             elif element.value.tipo == "RESERVED_ENTRADA":
                 element_type = "STRING"
             else:
                 element_type = element.value.tipo
 
             if element_type != token_type:
+
                 if isList:
                     self.error(f"lista não pode conter tipos diferentes,", element.value.linha)
                 elif (token_type == "NUMBER" and element_type == "DOUBLE") or (token_type == "DOUBLE" and element_type == "NUMBER"):
