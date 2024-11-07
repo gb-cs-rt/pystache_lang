@@ -43,7 +43,13 @@ class Semantic:
                         if self.type_hash[-1][id_token.value.lexema] != f"LIST_{token_type}":
                             self.error(f"lista '{id_token.value.lexema}' já declarada com outro tipo", id_token.value.linha)
                     elif self.type_hash[-1][id_token.value.lexema] != token_type:
-                        self.error(f"variável '{id_token.value.lexema}' já declarada com outro tipo", id_token.value.linha)
+                        if node.children[2].children[0].children[0].value == "atribComOp" and node.children[2].children[0].children[0].children[0].children[0].value.tipo == "DIV_INT_ASSIGN":
+                            if self.type_hash[-1][id_token.value.lexema] == "NUMBER" and token_type == "DOUBLE" or self.type_hash[-1][id_token.value.lexema] == "DOUBLE" and token_type == "NUMBER":
+                                return
+                            else:
+                                self.error(f"variável '{id_token.value.lexema}' já declarada com outro tipo", id_token.value.linha)
+                        else:
+                            self.error(f"variável '{id_token.value.lexema}' já declarada com outro tipo", id_token.value.linha)
 
             if node.value == "cmdPrint":
                 self.check_cmdPrint(node)
