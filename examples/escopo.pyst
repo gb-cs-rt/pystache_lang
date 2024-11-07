@@ -7,3 +7,13 @@ funcao teste()
 
 teste()
 exiba("valor fora da função: %d\n", a)
+
+texto: ""
+
+se a = 10 entao
+    texto: "a é igual a 10"
+
+se a = 20 entao
+    texto: "a é igual a 20"
+
+exiba("%s\n", texto)
