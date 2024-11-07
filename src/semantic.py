@@ -31,31 +31,17 @@ class Semantic:
             if node.value == "cmdIf" or node.value == "cmdFor" or node.value == "cmdWhile":
                 self.scope_control("enter")
 
-            if node.value == "cmdID" and node.children[2].children[0].value == "cmdAtrib":
-                id_token = node.children[0]
-                token_type = self.check_cmdAtrib(node.children[2].children[0])
-                if id_token.value.lexema not in self.type_hash[-1]:
-                    self.type_hash[-1][id_token.value.lexema] = token_type
-                else:
-                    if len(node.children[1].children) > 0:
-                        if self.type_hash[-1][id_token.value.lexema][:4] != "LIST":
-                            self.error(f"variável '{id_token.value.lexema}' não é uma lista,", id_token.value.linha)
-                        if self.type_hash[-1][id_token.value.lexema] != f"LIST_{token_type}":
-                            self.error(f"lista '{id_token.value.lexema}' já declarada com outro tipo", id_token.value.linha)
-                    elif self.type_hash[-1][id_token.value.lexema] != token_type:
-                        if node.children[2].children[0].children[0].value == "atribComOp" and node.children[2].children[0].children[0].children[0].children[0].value.tipo == "DIV_INT_ASSIGN":
-                            if self.type_hash[-1][id_token.value.lexema] == "NUMBER" and token_type == "DOUBLE" or self.type_hash[-1][id_token.value.lexema] == "DOUBLE" and token_type == "NUMBER":
-                                return
-                            else:
-                                self.error(f"variável '{id_token.value.lexema}' já declarada com outro tipo", id_token.value.linha)
-                        else:
-                            self.error(f"variável '{id_token.value.lexema}' já declarada com outro tipo", id_token.value.linha)
+            if node.value == "cmdID":
+                self.check_cmdID(node)
 
             if node.value == "cmdPrint":
                 self.check_cmdPrint(node)
                         
             if node.value == "cmdFor":
                 self.check_cmdFor(node, "enter")
+
+            if node.value == "cmdIf":
+                self.check_cmdIf(node, "enter")
 
             if node.value == "cmdDefFunc":
                 id_token = node.children[1]
@@ -65,7 +51,7 @@ class Semantic:
                     self.scope_control("enter", func=True)
                     self.declareFuncParams(node)
                 else:
-                    self.error(f"função '{id_token.value.lexema}' já declarada", id_token.value.linha)
+                    self.error(f"função '{id_token.value.lexema}' já declarada,", id_token.value.linha)
 
         for child in node.children:
             self.check(child)
@@ -76,12 +62,37 @@ class Semantic:
             if node.value == "cmdIf" or node.value == "cmdFor" or node.value == "cmdDefFunc" or node.value == "cmdWhile":
                 self.scope_control("exit")
 
+    def check_cmdID(self, node):
+        if node.children[2].children[0].value == "cmdAtrib":
+            id_token = node.children[0]
+            token_type = self.check_cmdAtrib(node.children[2].children[0])
+            if id_token.value.lexema not in self.type_hash[-1]:
+                self.type_hash[-1][id_token.value.lexema] = token_type
+            else:
+                if len(node.children[1].children) > 0:
+                    if self.type_hash[-1][id_token.value.lexema][:4] != "LIST":
+                        self.error(f"variável '{id_token.value.lexema}' não é uma lista,", id_token.value.linha)
+                    if self.type_hash[-1][id_token.value.lexema] != f"LIST_{token_type}":
+                        self.error(f"lista '{id_token.value.lexema}' já declarada com outro tipo", id_token.value.linha)
+                elif self.type_hash[-1][id_token.value.lexema] != token_type:
+                    if node.children[2].children[0].children[0].value == "atribComOp" and node.children[2].children[0].children[0].children[0].children[0].value.tipo == "DIV_INT_ASSIGN":
+                        if self.type_hash[-1][id_token.value.lexema] == "NUMBER" and token_type == "DOUBLE" or self.type_hash[-1][id_token.value.lexema] == "DOUBLE" and token_type == "NUMBER":
+                            return
+                        else:
+                            self.error(f"variável '{id_token.value.lexema}' já declarada com outro tipo,", id_token.value.linha)
+                    else:
+                        self.error(f"variável '{id_token.value.lexema}' já declarada com outro tipo,", id_token.value.linha)
+        elif node.children[2].children[0].children[0].value == "chamadaFuncao":
+            if node.children[0].value.lexema not in self.type_hash[-1]:
+                self.error(f"função '{node.children[0].value.lexema}' não declarada,", node.children[0].value.linha)
+            
+
     def declareFuncParams(self, node):
         params = []
         self.get_params(node.children[3], params)
         for param in params:
             if param in self.type_hash[-1]:
-                self.error(f"parâmetro '{param}' já declarado", node.children[0].value.linha)
+                self.error(f"parâmetro '{param}' já declarado,", node.children[0].value.linha)
             self.type_hash[-1][param] = "NUMBER"
 
     def check_cmdAtrib(self, node):
@@ -112,7 +123,7 @@ class Semantic:
                         self.error(f"variável '{element.value.lexema}' não é um inteiro,", element.value.linha)
             else:
                 if element.value.tipo != "NUMBER":
-                    self.error(f"expressão com tipos incompatíveis, ", element.value.linha)
+                    self.error(f"expressão com tipos incompatíveis,", element.value.linha)
     
     def check_cmdDefFunc(self, node):
         isReturn = [False]
@@ -129,6 +140,13 @@ class Semantic:
 
         for child in node.children:
             self.findReturn(child, isReturn)
+
+    def check_cmdIf(self, node, state):
+
+        if state == "enter":
+            elements = []
+            self.get_elements(node.children[1], elements, False, False)
+            self.check_IDs(elements)
     
     def check_cmdFor(self, node, state):
 
@@ -136,7 +154,6 @@ class Semantic:
             elements = []
             self.get_elements(node.children[1], elements, False, False)
             self.onlyNumbers(elements)
-            print([element.value.lexema for element in elements])
         
         if node.children[1].children[0].value == "forVezes" or node.children[1].children[0].value == "forIntervalo":
             if state == "enter":
@@ -144,14 +161,14 @@ class Semantic:
                 if f"x{self.forVezesX}" not in self.type_hash[-1]:
                     self.type_hash[-1][f"x{self.forVezesX}"] = "NUMBER"
                 elif self.type_hash[-1][f"x{self.forVezesX}"] != "NUMBER":
-                    self.error(f"variável 'x{self.forVezesX}' já declarada", node.children[0].children[0].linha)
+                    self.error(f"variável 'x{self.forVezesX}' já declarada,", node.children[0].children[0].linha)
             else:
                 self.forVezesX -= 1
         elif node.children[1].children[0].value == "forSendo":
             if state == "enter":
                 if node.children[1].children[0].children[1].value.lexema in self.type_hash[-1]:
                     if self.type_hash[-1][node.children[1].children[0].children[1].value.lexema] != "NUMBER":
-                        self.error(f"variável '{node.children[1].children[0].children[1].value.lexema}' já declarada como não inteiro", node.children[1].children[0].children[1].value.linha)
+                        self.error(f"variável '{node.children[1].children[0].children[1].value.lexema}' já declarada como não inteiro,", node.children[1].children[0].children[1].value.linha)
                 self.type_hash[-1][node.children[1].children[0].children[1].value.lexema] = "NUMBER"
 
     def get_elements(self, node, elements, isList, floatDiv):
@@ -227,7 +244,7 @@ class Semantic:
                 elif (token_type == "NUMBER" and element_type == "DOUBLE") or (token_type == "DOUBLE" and element_type == "NUMBER"):
                     token_type = "DOUBLE"
                 else:
-                    self.error(f"expressão com tipos incompatíveis", element.value.linha)
+                    self.error(f"expressão com tipos incompatíveis,", element.value.linha)
         
         if isList:
             return f"LIST_{token_type}"

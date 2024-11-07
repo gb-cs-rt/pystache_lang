@@ -1,0 +1,56 @@
+-=| utilização de variável não declarada
+
+-=| exiba("%d\n", a)
+
+-=| repita a vezes
+-=|     exiba("Hello, World!\n")
+
+-=| se a = 1 entao
+-=|     exiba("Hello, World!\n")
+
+-=| a: b + 2
+
+-=| atribuição de valor imcompatível com o tipo da variável
+
+-=| a: 0
+-=| a: "Hello, World!"
+
+-=| expressão com tipos incompatíveis
+
+-=| a: 1
+-=| b: "Hello, World!"
+-=| soma: a + b
+
+-=| lista com tipos incompatíveis
+
+-=| lista: [1, "Hello, World!"]
+
+-=| acesso à variável que não é lista (TODO em não atribuição)
+
+-=| a: 1
+-=| a[0]: 99
+
+-=| função já declarada
+
+-=| funcao hello()
+-=|     exiba("Hello, World!\n")
+
+-=| funcao hello()
+-=|     exiba("Olá, Mundo!\n")
+
+-=| função não declarada
+
+-=| hello()
+
+-=| parâmetro já declarado
+
+-=| funcao soma(a, a)
+-=|     retorne a + a
+
+-=| laço de repetição com tipo incompatível
+
+-=| repita "10" vezes
+-=|     exiba("Hello, World!\n")
+
+-=| repita de 0 ate 10 passo "2"
+-=|     exiba("Hello, World!\n")
