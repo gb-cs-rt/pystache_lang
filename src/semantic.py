@@ -176,6 +176,15 @@ class Semantic:
             if node.value == "lista":
                 isList[0] = True
             if node.value == "elemento":
+
+                if len(node.children) > 1 and len(node.children[1].children) > 0:
+                    if node.children[1].children[0].children[0].value == "chamadaFuncao":
+                        if self.type_hash[-1][node.children[0].value.lexema][:4] != "FUNC":
+                            self.error(f"variável '{node.children[0].value.lexema}' não é uma função,", node.children[0].value.linha)
+                    elif node.children[1].children[0].children[0].value == "acessoLista":
+                        if self.type_hash[-1][node.children[0].value.lexema][:4] != "LIST":
+                            self.error(f"variável '{node.children[0].value.lexema}' não é uma lista,", node.children[0].value.linha)
+
                 elements.append(node.children[0])
             if node.value == "cmdInput":
                 elements.append(node.children[0])
@@ -208,6 +217,7 @@ class Semantic:
                 self.error(f"variável {first_token.lexema} não declarada neste escopo,", first_token.linha)
                 return None
             
+            
             token_type = self.type_hash[-1][first_token.lexema]
         else:
             token_type = first_token.tipo
@@ -232,6 +242,7 @@ class Semantic:
             if element.value.tipo == "ID":
                 if element.value.lexema not in self.type_hash[-1]:
                     self.error(f"variável {element.value.lexema} não declarada neste escopo,", element.value.linha)
+                    
                 element_type = self.type_hash[-1][element.value.lexema]
             elif element.value.tipo == "RESERVED_ENTRADA":
                 element_type = "STRING"
@@ -268,4 +279,3 @@ class Semantic:
         except Exception as e:
             print(e)
             return False, None
-        # self.check(self.tree.root)
