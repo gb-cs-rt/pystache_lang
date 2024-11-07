@@ -14,6 +14,7 @@ def main():
     parser.add_argument("file", nargs="?", default=None, type=str)
     parser.add_argument("-tree", nargs="?", default=False, type=bool)
     parser.add_argument("-tokens", nargs="?", default=False, type=bool)
+    parser.add_argument("-hash", nargs="?", default=False, type=bool)
     args = parser.parse_args()
 
     if args.file is None:
@@ -41,7 +42,8 @@ def main():
             semantic = Semantic(parserTree, data)
             semanticResult, typeHash = semantic.run()
 
-            if args.tree is not False:
+            if args.hash is not False:
+                print()
                 pp(typeHash)
 
             if semanticResult:

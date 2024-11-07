@@ -1,5 +1,3 @@
-from utils import Tree
-
 class Translator:
 
     def __init__(self, type_hash, scope_pile):
@@ -120,6 +118,8 @@ class Translator:
                 return "pass"
             elif token.tipo == "DIV_INT":
                 return " / "
+            elif token.tipo == "DIV":
+                return " / (float)"
             elif token.tipo == "EQUALS":
                 return " == "
             elif token.tipo == "BOOL":
@@ -152,6 +152,7 @@ class Translator:
             elif token.tipo == "RESERVED_RETORNE":
                 return "return "
             elif token.tipo == "ID" and self.funcParam:
+                self.scope_pile[-1][token.lexema] = True
                 return f"int {token.lexema}"
             elif token.tipo == "RESERVED_PARE":
                 return "break"
@@ -164,6 +165,10 @@ class Translator:
             return ""
         
     def translate_type(self, lexema):
+        # print("-- TRANSLATE TYPE --")
+        # print(f"lexema: {lexema}, scopeID: {self.scopeID}")
+        # pp(self.type_hash[self.scopeID])
+        # print("---------------------")
         tipo = self.type_hash[self.scopeID][lexema]
         if tipo == "NUMBER":
             return "int "
@@ -210,6 +215,7 @@ class Translator:
             if node.children[2].children[0].children[0].value == "atribComum":
                 if node.children[0].value.lexema not in self.scope_pile[-1]:
                     self.scope_pile[-1][node.children[0].value.lexema] = True
+                    # print("linha", node.children[0].value.linha)
                     return self.translate_type(node.children[0].value.lexema)
                 else:
                     return ""
@@ -329,12 +335,13 @@ class Translator:
         if state == "enter":
             if not function:
                 self.stopTranslation = True
+            # print("linha: ", node.children[1].value.linha)
             return self.translate_type(node.children[1].value.lexema)
         elif state == "exit":
             self.stopTranslation = False
+            self.scopeID += 1
+            self.scope_pile.pop()
             if function:
-                self.scopeID += 1
-                self.scope_pile.pop()
                 return "\n\n"
             else:
                 return ""
@@ -355,9 +362,9 @@ class Translator:
         
     def listaParametros(self, node, state, function=False):
         if state == "enter":
+            self.scopeID += 1
+            self.scope_pile.append({"entradaNumero": True, "entradaDouble": True})
             if function:
-                self.scopeID += 1
-                self.scope_pile.append({})
                 self.funcParam = True
             return ""
         elif state == "exit":
@@ -456,4 +463,5 @@ class Converter:
     def convert(self):
         self.create_file()
         self.translate_functions(self.tree.root)
+        self.translator.scopeID = 0
         self.pre_order(self.tree.root)

@@ -1,6 +1,5 @@
 from utils import CharacterIterator
 from termcolor import colored
-from pprint import pprint as pp
 
 class Semantic:
 
@@ -82,12 +81,13 @@ class Semantic:
     def check_cmdAtrib(self, node):
         elements = []
         isList = [False]
-        self.get_elements(node, elements, isList)
-        return self.check_elements(elements, isList[0])
+        floatDiv = [False]
+        self.get_elements(node, elements, isList, floatDiv)
+        return self.check_elements(elements, isList[0], floatDiv[0])
     
     def check_cmdPrint(self, node):
         elements = []
-        self.get_elements(node.children[2], elements, False)
+        self.get_elements(node.children[2], elements, False, False)
         self.check_IDs(elements)
 
     def check_IDs(self, elements):
@@ -129,7 +129,7 @@ class Semantic:
                         self.error(f"variável '{node.children[1].children[0].children[1].value.lexema}' já declarada como não inteiro", node.children[1].children[0].children[1].value.linha)
                 self.type_hash[-1][node.children[1].children[0].children[1].value.lexema] = "NUMBER"
 
-    def get_elements(self, node, elements, isList):
+    def get_elements(self, node, elements, isList, floatDiv):
         if node.type == "rule":
             if node.value == "lista":
                 isList[0] = True
@@ -137,8 +137,13 @@ class Semantic:
                 elements.append(node.children[0])
             if node.value == "cmdInput":
                 elements.append(node.children[0])
+            if node.value == "opMul":
+                if node.children[0].value.tipo == "DIV":
+                    floatDiv[0] = True
+
             for child in node.children:
-                self.get_elements(child, elements, isList)
+                self.get_elements(child, elements, isList, floatDiv)
+        
 
     def get_params(self, node, params):
         if node.type == "token":
@@ -148,7 +153,7 @@ class Semantic:
             for child in node.children:
                 self.get_params(child, params)
 
-    def check_elements(self, elements, isList):
+    def check_elements(self, elements, isList, floatDiv):
 
         if len(elements) == 0:
             if isList:
@@ -201,6 +206,8 @@ class Semantic:
         
         if isList:
             return f"LIST_{token_type}"
+        if floatDiv:
+            return "DOUBLE"
         if token_type == "RESERVED_ENTRADA":
             return "STRING"
         else:
