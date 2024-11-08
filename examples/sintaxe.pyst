@@ -106,3 +106,5 @@ repita sendo i de 0 ate 2
     exiba("O elemento %d da lista é %d\n", i, lista[i])
 
 -=| chamada de função em atribuição
+
+resultado: somar(1, 2) + 2
