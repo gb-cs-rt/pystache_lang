@@ -49,10 +49,10 @@ class Rules:
         return self.error(node)
     
     def acessoListaOp(self, parent_node):
-        # acessoListaOp -> acessoLista | ε
+        # acessoListaOp -> acessoLista acessoListaOp | ε
         node = self.addNode("acessoListaOp", parent_node)
         if self.firstFollow("OPEN_BRACKET"):
-            return True if self.acessoLista(node) else self.error(node)
+            return True if self.acessoLista(node) and self.acessoListaOp(node) else self.error(node)
         return True
 
     def cmdID(self, parent_node):
@@ -179,10 +179,10 @@ class Rules:
         return True
 
     def composicao(self, parent_node):
-        # composicao -> acessoLista | chamadaFuncao
+        # composicao -> acessoLista acessoListaOp | chamadaFuncao
         node = self.addNode("composicao", parent_node)
         if self.firstFollow("OPEN_BRACKET"):
-            return True if self.acessoLista(node) else self.error(node)
+            return True if self.acessoLista(node) and self.acessoListaOp(node) else self.error(node)
         if self.firstFollow("OPEN_PARENTHESIS"):
             return True if self.chamadaFuncao(node) else self.error(node)
         return True

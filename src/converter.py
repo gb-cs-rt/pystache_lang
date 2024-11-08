@@ -178,36 +178,49 @@ class Translator:
         elif state == "exit":
             return ""
         
-    def translate_type(self, lexema):
+    def translate_type(self, lexema, dimensions=None):
         # print("-- TRANSLATE TYPE --")
         # print(f"lexema: {lexema}, scopeID: {self.scopeID}")
         # print(self.type_hash[self.scopeID])
         # print("---------------------")
         tipo = self.type_hash[self.scopeID][lexema]
-        if tipo == "NUMBER":
-            return "int "
-        elif tipo == "DOUBLE":
-            return "double "
-        elif tipo == "STRING":
-            return "string "
-        elif tipo == "LIST_VOID":
-            return "vector<void*> "
-        elif tipo == "LIST_NUMBER":
-            return "vector<int> "
-        elif tipo == "LIST_DOUBLE":
-            return "vector<double> "
-        elif tipo == "LIST_STRING":
-            return "vector<string> "
-        elif tipo == "BOOL":
-            return "bool "
-        elif tipo == "FUNC_VOID":
-            return "void "
-        elif tipo == "FUNC_NUMBER":
-            return "int "
-        elif tipo == "FUNC_DOUBLE":
-            return "double "
+
+        if dimensions:
+            listType = "vector<"
+
+            for i in range(dimensions-1):
+                listType += "vector<"
+
+            if tipo.split("_")[1] == "VOID":
+                listType += "void*>"
+            elif tipo.split("_")[1] == "NUMBER":
+                listType += "int>"
+            elif tipo.split("_")[1] == "DOUBLE":
+                listType += "double>"
+            elif tipo.split("_")[1] == "STRING":
+                listType += "string>"
+
+            for i in range(dimensions-1):
+                listType += ">"
+
+            return listType + " "
         else:
-            return ""
+            if tipo == "NUMBER":
+                return "int "
+            elif tipo == "DOUBLE":
+                return "double "
+            elif tipo == "STRING":
+                return "string "
+            elif tipo == "BOOL":
+                return "bool "
+            elif tipo == "FUNC_VOID":
+                return "void "
+            elif tipo == "FUNC_NUMBER":
+                return "int "
+            elif tipo == "FUNC_DOUBLE":
+                return "double "
+            else:
+                return ""
 
     def prog(self, state):
         if state == "enter":
@@ -230,7 +243,15 @@ class Translator:
                 if node.children[0].value.lexema not in self.scope_pile[-1]:
                     self.scope_pile[-1][node.children[0].value.lexema] = True
                     # print("linha", node.children[0].value.linha)
-                    return self.translate_type(node.children[0].value.lexema)
+
+                    if self.type_hash[self.scopeID][node.children[0].value.lexema][:4] == "LIST":
+                        
+                        dimensions = self.type_hash[self.scopeID][node.children[0].value.lexema].split("_")[2]
+                        dimensions = int(dimensions)
+
+                        return self.translate_type(node.children[0].value.lexema, dimensions=dimensions)
+                    else:
+                        return self.translate_type(node.children[0].value.lexema)
                 else:
                     return ""
             else:
