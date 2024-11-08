@@ -401,7 +401,7 @@ class Translator:
     def listaParametros(self, node, state, function=False):
         if state == "enter":
             self.scopeID += 1
-            self.scope_pile.append({"entradaNumero": True, "entradaReal": True})
+            self.scope_pile.append({"entradaNumero": True, "entradaReal": True, "inserir": True, "remover": True, "tamanho": True})
             if function:
                 self.funcParam = True
             return ""
@@ -466,6 +466,7 @@ class Converter:
         file.write("#include <vector>\n")
         file.write("#include <cstdio>\n")
         file.write("#include <cmath>\n\n")
+        file.write("#include <optional>\n\n")
         file.write("using namespace std;\n\n")
         file.write("#define pass (void)0\n\n")
         file.write("string userInput(string message = \"\") {\n")
@@ -486,6 +487,28 @@ class Converter:
         file.write("    cin >> input;\n")
         file.write("    return input;\n")
         file.write("}\n\n")
+        file.write("template <typename T>\n");
+        file.write("int tamanho(const std::vector<T>& vec) {\n");
+        file.write("    return static_cast<int>(vec.size());\n");
+        file.write("}\n\n");
+        file.write("template <typename T>\n");
+        file.write("void inserir(std::vector<T>& vec, const T& element, std::optional<size_t> index = std::nullopt) {\n");
+        file.write("    if (index.has_value() && index.value() < vec.size()) {\n");
+        file.write("        vec.insert(vec.begin() + index.value(), element);\n");
+        file.write("    } else if (!index.has_value()) {\n");
+        file.write("        vec.push_back(element);\n");
+        file.write("    } else {\n");
+        file.write("        std::cerr << \"índice inválido!\" << std::endl;\n");
+        file.write("    }\n");
+        file.write("}\n\n");
+        file.write("template <typename T>\n");
+        file.write("void remover(std::vector<T>& vec, size_t index) {\n");
+        file.write("    if (index < vec.size()) {\n");
+        file.write("        vec.erase(vec.begin() + index);\n");
+        file.write("    } else {\n");
+        file.write("        std::cerr << \"índice inválido!\" << std::endl;\n");
+        file.write("    }\n");
+        file.write("}\n\n");
         file.close()
     
     def convert(self):

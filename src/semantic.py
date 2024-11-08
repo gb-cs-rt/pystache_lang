@@ -1,4 +1,4 @@
-from utils import CharacterIterator
+from utils import CharacterIterator, DictList
 from termcolor import colored
 
 class Semantic:
@@ -6,7 +6,7 @@ class Semantic:
     def __init__(self, tree, code):
         self.tree = tree
         self.code = CharacterIterator(code)
-        self.type_hash = [{"entradaNumero": "FUNC_NUMBER", "entradaReal": "FUNC_DOUBLE"}]
+        self.type_hash = [{"entradaNumero": "FUNC_NUMBER", "entradaReal": "FUNC_DOUBLE", "inserir": "FUNC_VOID", "remover": "FUNC_VOID", "tamanho": "FUNC_NUMBER"}]
         self.all_scopes = []
         self.forVezesX = 0
 
@@ -113,22 +113,36 @@ class Semantic:
         elements = []
         listLevel = [0]
         listDimensions = []
+        acessosLista = DictList()
         floatDiv = [False]
         mod = [False]
-        self.get_elements(node, elements, listDimensions, listLevel, floatDiv, mod)
+        self.get_elements(node, elements, listDimensions, listLevel, acessosLista, floatDiv, mod)
 
-        return self.check_elements(elements, listDimensions, floatDiv[0], mod[0])
+        return self.check_elements(elements, listDimensions, acessosLista, floatDiv[0], mod[0])
     
     def check_cmdPrint(self, node):
         elements = []
-        self.get_elements(node.children[2], elements, False, False, False, False)
-        self.check_IDs(elements)
+        acessosLista = DictList()
+        self.get_elements(node.children[2], elements, False, False, acessosLista, False, False, isPrint=[True])
+        self.check_IDs(elements, acessosLista)
 
-    def check_IDs(self, elements):
+    def check_IDs(self, elements, acessosLista={}):
         for element in elements:
             if element.value.tipo == "ID":
                 if element.value.lexema not in self.type_hash[-1]:
                     self.error(f"variável '{element.value.lexema}' não declarada neste escopo,", element.value.linha)
+                if self.type_hash[-1][element.value.lexema][:4] == "LIST":
+
+                    list_dimension = self.type_hash[-1][element.value.lexema].split("_")[2]
+
+                    if element.value.lexema in acessosLista:
+                        if isinstance(acessosLista[element.value.lexema], list):
+                            for dim in acessosLista[element.value.lexema]:
+                                if dim > int(list_dimension):
+                                    self.error(f"dimensão da lista '{element.value.lexema}' incorreta,", element.value.linha)
+                        else:
+                            if acessosLista[element.value.lexema] > int(list_dimension):
+                                self.error(f"dimensão da lista '{element.value.lexema}' incorreta,", element.value.linha)
 
     def onlyNumbers(self, elements):
         for element in elements:
@@ -162,7 +176,7 @@ class Semantic:
 
         if state == "enter":
             elements = []
-            self.get_elements(node.children[1], elements, False, False, False, False)
+            self.get_elements(node.children[1], elements, False, False, False, False, False)
             self.check_IDs(elements)
     
     def check_cmdFor(self, node, state):
@@ -170,7 +184,7 @@ class Semantic:
         if state == "enter":
             elements = []
             insideFuncParams = [False]
-            self.get_elements(node.children[1], elements, False, False, False, False, insideFuncParams)
+            self.get_elements(node.children[1], elements, False, False, False, False, False, insideFuncParams)
             self.onlyNumbers(elements)
         
         if node.children[1].children[0].value == "forVezes" or node.children[1].children[0].value == "forIntervalo":
@@ -189,13 +203,24 @@ class Semantic:
                         self.error(f"variável '{node.children[1].children[0].children[1].value.lexema}' já declarada como não inteiro,", node.children[1].children[0].children[1].value.linha)
                 self.type_hash[-1][node.children[1].children[0].children[1].value.lexema] = "NUMBER"
 
-    def get_elements(self, node, elements, listDimensions, listLevel, floatDiv, mod, insideFuncParams=[False]):
+    def getAcessosLista(self, id, node, qtdAcessos):
+        if node.type == "rule":
+            if node.value == "acessoLista":
+                    qtdAcessos[0] += 1
+
+        for child in node.children:
+            self.getAcessosLista(id, child, qtdAcessos)
+
+    def get_elements(self, node, elements, listDimensions, listLevel, acessosLista, floatDiv, mod, insideFuncParams=[False], isPrint=[False]):
         if node.type == "rule":
             if node.value == "lista":
                 listLevel[0] += 1
                 listDimensions.append(listLevel[0])
 
-            if node.value == "chamadaFuncao":
+            if node.value == "chamadaFuncao" and not isPrint[0]:
+                insideFuncParams[0] = True
+
+            if node.value == "acessoLista" and not isPrint[0]:
                 insideFuncParams[0] = True
 
             if node.value == "elemento" and not insideFuncParams[0]:
@@ -212,6 +237,11 @@ class Semantic:
                         if self.type_hash[-1][node.children[0].value.lexema][:4] != "LIST":
                             self.error(f"variável '{node.children[0].value.lexema}' não é uma lista,", node.children[0].value.linha)
 
+                        qtdAcessos = [0]
+                        self.getAcessosLista(node.children[0].value.lexema, node.children[1].children[0], qtdAcessos)
+                        
+                        acessosLista[node.children[0].value.lexema] = qtdAcessos[0]
+
                 elements.append(node.children[0])
             if node.value == "cmdInput":
                 elements.append(node.children[0])
@@ -222,9 +252,11 @@ class Semantic:
                     mod[0] = True
 
             for child in node.children:
-                self.get_elements(child, elements, listDimensions, listLevel, floatDiv, mod)
+                self.get_elements(child, elements, listDimensions, listLevel, acessosLista, floatDiv, mod, insideFuncParams, isPrint)
 
             if node.value == "chamadaFuncao":
+                insideFuncParams[0] = False
+            if node.value == "acessoLista":
                 insideFuncParams[0] = False
             if node.value == "lista":
                 listLevel[0] -= 1
@@ -238,7 +270,7 @@ class Semantic:
             for child in node.children:
                 self.get_params(child, params)
 
-    def check_elements(self, elements, listDimensions, floatDiv, mod):
+    def check_elements(self, elements, listDimensions, acessosLista, floatDiv, mod):
 
         if len(elements) == 0:
             if len(listDimensions) > 0:
@@ -262,16 +294,34 @@ class Semantic:
             token_type = "NUMBER"
         elif token_type == "FUNC_DOUBLE":
             token_type = "DOUBLE"
-        elif token_type.split("_")[0] == "LIST":
+        elif token_type[:4] == "LIST":
 
             list_type = token_type.split("_")[1]
+            list_dimension = token_type.split("_")[2]
 
-            if list_type == "STRING":
-                return "STRING"
-            elif list_type == "NUMBER":
-                return "NUMBER"
-            elif list_type == "DOUBLE":
-                return "DOUBLE"
+            if first_token.lexema in acessosLista:
+                dimResultante = 0
+                if isinstance(acessosLista[first_token.lexema], list):
+                    for dim in acessosLista[first_token.lexema]:
+                        if dim > int(list_dimension):
+                            self.error(f"dimensão da lista '{first_token.lexema}' incorreta,", first_token.linha)
+                        else:
+                            dimResultante = int(list_dimension) - dim
+                else:
+                    if acessosLista[first_token.lexema] > int(list_dimension):
+                        self.error(f"dimensão da lista '{first_token.lexema}' incorreta,", first_token.linha)
+                    else:
+                        dimResultante = int(list_dimension) - acessosLista[first_token.lexema]
+
+                if dimResultante > 0:
+                    list_type = f"LIST_{list_type}_{dimResultante}"
+                else:
+                    list_type = list_type
+
+                token_type = list_type
+            else:
+                token_type = token_type
+
         elif token_type == "FUNC_VOID":
             self.error(f"função não retorna valor,", first_token.linha)
         
@@ -279,11 +329,37 @@ class Semantic:
             if element.value.tipo == "ID":
                 if element.value.lexema not in self.type_hash[-1]:
                     self.error(f"variável '{element.value.lexema}' não declarada neste escopo,", element.value.linha)
-
                 if self.type_hash[-1][element.value.lexema] == "FUNC_NUMBER":
                     element_type = "NUMBER"
                 elif self.type_hash[-1][element.value.lexema] == "FUNC_DOUBLE":
                     element_type = "DOUBLE"
+                elif self.type_hash[-1][element.value.lexema][:4] == "LIST":
+
+                    list_type = self.type_hash[-1][element.value.lexema].split("_")[1]
+                    list_dimension = self.type_hash[-1][element.value.lexema].split("_")[2]
+
+                    if element.value.lexema in acessosLista:
+                        dimResultante = 0
+                        if isinstance(acessosLista[element.value.lexema], list):
+                            for dim in acessosLista[element.value.lexema]:
+                                if dim > int(list_dimension):
+                                    self.error(f"dimensão da lista '{element.value.lexema}' incorreta,", element.value.linha)
+                                else:
+                                    dimResultante = int(list_dimension) - dim
+                        else:
+                            if acessosLista[element.value.lexema] > int(list_dimension):
+                                self.error(f"dimensão da lista '{element.value.lexema}' incorreta,", element.value.linha)
+                            else:
+                                dimResultante = int(list_dimension) - acessosLista[element.value.lexema]
+
+                        if dimResultante > 0:
+                            list_type = f"LIST_{list_type}_{dimResultante}"
+                        else:
+                            list_type = list_type
+
+                        element_type = list_type
+                    else:
+                        element_type = self.type_hash[-1][element.value.lexema]
                 else:
                     element_type = self.type_hash[-1][element.value.lexema]
             elif element.value.tipo == "RESERVED_ENTRADA":
@@ -315,7 +391,7 @@ class Semantic:
             
         if state == "enter":
             elements = []
-            self.get_elements(node.children[1], elements, False, False, False, False)
+            self.get_elements(node.children[1], elements, False, False, False, False, False)
             self.check_IDs(elements)
     
     def error(self, message, line):
@@ -329,5 +405,7 @@ class Semantic:
             self.all_scopes.append(self.type_hash[-1].copy())
             return True, self.all_scopes
         except Exception as e:
+            # import traceback
+            # traceback.print_exc()
             print(e)
             return False, None
