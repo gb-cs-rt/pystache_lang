@@ -102,72 +102,48 @@ Pystache é uma linguagem de programação de alto nível projetada para ser ace
 ```eof: $```
 
 ## Gramática
-
-prog -> bloco
-
-bloco -> cmd bloco | ε
-
-cmd -> cmdIf | cmdFor | cmdWhile | cmdAtrib | cmdDefFunc | cmdCallFunc | cmdPrint | cmdInput | cmdReturn | <reserved_passe> | <reserved_pare>
-
-cmdIf -> <reserved_se> valor <reserved_entao>
-<indent> bloco <dedent> cmdElse
-
-cmdElse -> expressaoLogica | lista | cmdPrint | cmdCallFunc | acessoLista
-
-expressaoLogica -> expressaoRelacional(opLogico expressaoRelacional)
-
-expressaoRelacional -> expressaoAritimetica(opRelacional expressaoAritimetica)*
-
-opAd -> <plus>|<minus>
-
-opLogico -> <and>|<or>
-
-opRelacional -> <greater> | <less> | <greater_equal> | <less_equal> | <equals> | <different>
-
-termo -> fator(opMul fator)*
-
-elemento -> <number> | <double> | <id> | <open_parenthesis> expressaoLogica <close_parenthesis> | <string> | <bool>
-
-lista -> <open_bracket> corpoLista <close_bracket>
-
-corpoLista -> valor entradaLista | ε
-
-entradaLista -> <comma> valor entradaLista | ε
-
-cmdAtrib -> <id> tipoAtrib
-
-tipoAtrib -> atribComum | atribComOp
-
-atribComum -> <assign> valor
-
-atribComOp -> assignOp valor
-
-assignOp -> <plus_assign> | <minus_assign> | <mult_assign> | <div_assign> | <div_int_assign> | <mod_assign> | <pow_assign>
-
-cmdFor -> <reserved_repita> variavelFor <ident> bloco <dedent>
-
-variavelFor -> forVezes | forIntervalor | forSendo
-
-forVezes -> expressaoAritimetica <reserved_vezes>
-
-forIntervalo -> <reserved_de> expressaoAritimetica <reserved_ate> expressaoAritimetica passoFor
-
-passoFor -> <reserved_passo> expressaoAritimetica | ε
-
-forSendo -> <reserved_sendo> <id> forIntervalo
-
-cmdWhile -> <reserved_funcao> <id> <open_parenthesis> listaParametros <close_parenthesis> <ident> bloco <dedent>
-
-listaParametros -> <id> entradaListaParam | ε
-
-entradaListaParam -> <comma> <id> entradaListaParam | ε
-
-valorRetorno -> valor | ε
-
-cmdCallFunc -> <id> <open_parenthesis> corpoLista <close_parenthesis>
-
-acessoLista -> <id> <open_bracket> expressaoAritimetica <close_bracket>
-
-cmdPrint -> <reserved_exiba> <open_parenthesis> corpoLista <close_parenthesis>
-
-cmdInput -> <reserved_entrada> <open_parenthesis> corpoLista <close_parenthesis>
+```prog -> bloco```<br>
+```bloco -> cmd bloco | ε```<br>
+```cmd -> cmdID | cmdIf | cmdFor | cmdWhile | cmdReturn | cmdDefFunc | cmdPrint | cmdInput | <reserved_passe> | <reserved_pare>```<br>
+```cmdID -> ID acessoListaOp complemento```<br>
+```cmdIf -> <reserved_se> valor <reserved_entao> <indent> bloco <dedent> cmdElse```<br>
+```cmdElse -> <reserved_senao> <indent> bloco <dedent> | ε```<br>
+```complemento -> cmdAtrib | composicao```<br>
+```cmdAtrib -> atribComum | atribComOp```<br>
+```atribComum -> <assign> valor```<br>
+```atribComOp -> assignOp valor```<br>
+```assignOp -> <plus_assign> | <minus_assign> | <mult_assign> | <div_assign> | <div_int_assign> | <mod_assign> | <pow_assign>```<br>
+```composicao -> acessoLista | chamadaFuncao```<br>
+```acessoLista -> <open_bracket> expressaoAritmetica <close_bracket>```<br>
+```chamadaFuncao -> <open_parenthesis> corpoLista <close_parenthesis>```<br>
+```acessoListaOp -> acessoLista | ε```<br>
+```valor -> expressaoLogica | lista | cmdPrint | cmdInput```<br>
+```expressaoLogica -> expressaoRelacional (opLogico expressaoRelacional)*```<br>
+```opLogico -> <and> | <or>```<br>
+```expressaoRelacional -> expressaoAritmetica (opRelacional expressaoAritmetica)*```<br>
+```opRelacional -> <greater> | <less> | <equals> | <different> | <greater_equal> | <less_equal>```<br>
+```expressaoAritmetica -> termo (opAd termo)*```<br>
+```opAd -> <plus> | <minus>```<br>
+```termo -> fator (opMul fator)*```<br>
+```opMul -> <mult> | <div> | <div_int> | <mod>```<br>
+```fator -> elemento (opPow elemento)*```<br>
+```opPow -> <pow>```<br>
+```elemento -> <num> | <double> | <id> X | <open_parenthesis> expressaoLogica <close_parenthesis> | <string> | <bool>```<br>
+```X -> composicao | ε```<br>
+```lista -> <open_bracket> corpoLista <close_bracket>```<br>
+```corpoLista -> valor entradaLista | ε```<br>
+```entradaLista -> <comma> valor entradaLista | ε```<br>
+```cmdFor -> <reserved_repita> variavelFor <indent> bloco <dedent>```<br>
+```variavelFor -> forVezes | forIntervalo | forSendo```<br>
+```forVezes -> expressaoAritmetica <reserved_vezes>```<br>
+```forIntervalo -> <reserved_de> expressaoAritmetica <reserved_ate> expressaoAritmetica passoFor```<br>
+```passoFor -> <reserved_passo> expressaoAritmetica | ε```<br>
+```forSendo -> <reserved_sendo> <id> forIntervalo```<br>
+```cmdWhile -> <reserved_enquanto> valor <indent> bloco <dedent>```<br>
+```cmdDefFunc -> <reserved_funcao> <id> <open_parenthesis> listaParametros <close_parenthesis> <indent> bloco <dedent>```<br>
+```listaParametros -> <id> entradaListaParam | ε```<br>
+```entradaListaParam -> <comma> <id> entradaListaParam | ε```<br>
+```cmdReturn -> <reserved_retorne> valorRetorno```<br>
+```valorRetorno -> valor | ε```<br>
+```cmdPrint -> <reserved_exiba> <open_parenthesis> corpoLista <closeParenthesis>```<br>
+```cmdInput -> <reserved_entrada> <open_parenthesis> corpoLista <closeParenthesis>```
