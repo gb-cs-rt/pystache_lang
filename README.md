@@ -27,7 +27,8 @@ Pystache é uma linguagem de programação de alto nível desenvolvida como proj
 ### Instalação
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/gb-cs-rt/projeto_compiladores
+   git clone https://github.com/gb-cs-rt/pystache_lang.git
+   cd pystache_lang
 
 2. Conceda permissão de execução e rode o script de instalação:
    ```bash
