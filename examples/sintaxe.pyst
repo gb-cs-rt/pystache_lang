@@ -92,7 +92,7 @@ enquanto a < n1
 funcao somar(a, b)
     retorne a + b
 
-resultado: somar(1, 2) + 2
+resultado: somar(1, 2)
 exiba("O resultado da soma é %.2f\n\n", resultado)
 
 funcao ping()
@@ -101,6 +101,9 @@ funcao ping()
 ping()
 
 -=| acesso à lista
+
+a: lista[0]
+lista[0]: 10
 
 repita sendo i de 0 ate 2
     exiba("O elemento %d da lista é %d\n", i, lista[i])
