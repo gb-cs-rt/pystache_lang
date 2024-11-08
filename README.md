@@ -51,210 +51,55 @@ Pystache é uma linguagem de programação de alto nível projetada para ser ace
 - ```pystache <nome_do_arquivo.pyst> -hash``` - Exibe o dicionário de tipos atribuídos às variáveis.
 
 ## Expressões Regulares
-- id:
-```
-[a-z A-Z _][a-z A-Z 0-9 _]*
-```
-- Assign:
-```
-":"  
-```
-- Number:
-```
-[0-9]+
-```
-- Double:
-```
-[0-9]*"."[0-9]+
-```
-- String:
-```
-""" [a-z A-Z 0-9 _ + - * / @ = ^ < > ! , . **etc**]*"
-```
-- open_bracket:
-```
-"["
-```
-- close_bracket:
-```
-"]"
-```
-- comma:
-```
-","
-```
-- reserved_se:
-```
-"se"
-```
-- greater:
-```
-">"
-```
-- less:
-```
-"<"
-```
-- reserved_entao:
-```
-"entao"
-```
-- reserved_exiba:
-```
-"exiba"
-```
-- open_parenthesis:
-```
-"("
-```
-- close_parenthesis:
-```
-")"
-```
-- reserved_senao:
-```
-"senao"
-```
-- reserved_repita:
-```
-"repita"
-```
-- reserved_vezes:
-```
-"vezes"
-```
-- reserved_de:
-```
-"de"
-```
-- reserved_ate:
-```
-"ate"
-```
-- reserved_sendo:
-```
-"sendo"
-```
-- reserved_enquanto:
-```
-"enquanto"
-```
-- reserved_funçao:
-```
-"funçao"
-```
-- reserved_retorne:
-```
-"retorne"
-```
-- reserved_entrada:
-```
-"entrada"
-```
-- plus:
-```
-"+"
-```
-- minus:
-```
-"-"
-```
-- mult:
-```
-"*"
-```
-- div:
-```
-"/"
-```
-- div_int:
-```
-"//"
-```
-- mod:
-```
-"%"
-```
-- pow:
-```
-"^"
-```
-- grater_equal:
-```
-">="
-```
-- less_equal:
-```
-"<="
-```
-- equals:
-```
-"="
-```
-- different:
-```
-"!="
-```
-- and:
-```
-"&"
-```
-- or:
-```
-"|"
-```
-- not:
-```
-"!"
-```
-- plus_assign:
-```
-"+:"
-```
-- minus_assign:
-```
-"-:"
-```
-- mult_assign:
-```
-"*:"
-```
-- div_assign:
-```
-"/:"
-```
-- div_int_assign:
-```
-"//:"
-```
-- mod_assign:
-```
-"%:"
-```
-- pow_assign:
-```
-"^:"
-```
-- reserved_passe:
-```
-"passe"
-```
-- reserved_pare:
-```
-"pare"
-```
-- reserved_passo:
-```
-"passo"
-```
-- eof:
-```
-"$"
-```
-- reserved_senao:
-```
-"senao"
-```
+```id: [a-zA-Z_][a-zA-Z0-9_]*```
+```number: [0-9]+```
+```double: [0-9]*.[0-9]+```
+```string: "[a-zA-Z0-9_+-*/@=^<>!,.&()[]%$#&~...]*```
+```bool: verdadeiro | falso```
+```plus: +```
+```minus: -```
+```div: /```
+```div_int: //```
+```mod: %```
+```pow: ^```
+```assign: :```
+```plus_assign: +:```
+```minus_assign: -:```
+```mult_assign: *:```
+```div_assign: /:```
+```div_int_assign: //:```
+```mod_assign: %:```
+```pow_assign: ^:```
+```greater: >```
+```less: <```
+```greater_equal: >=```
+```less_equal: <=```
+```equals: =```
+```different: !=```
+```and: &```
+```or: |```
+```open_bracket: [```
+```close_bracket: ]```
+```open_parenthesis: (```
+```close_parenthesis: )```
+```comma: ,```
+```reserved_se: se```
+```reserved_entao: entao```
+```reserved_exiba: exiba```
+```reserved_senao: senao```
+```reserved_repita: repita```
+```reserved_vezes: vezes```
+```reserved_de: de```
+```reserved_ate: ate```
+```reserved_sendo: sendo```
+```reserved_enquanto: enquanto```
+```reserved_funcao: funcao```
+```reserved_retorne: retorne```
+```reserved_entrada: entrada```
+```reserved_passe: passe```
+```reserved_pare: pare```
+```reserved_passo: passo```
+```eof: $```
 
 ## Gramática
 
