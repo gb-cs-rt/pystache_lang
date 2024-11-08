@@ -413,3 +413,8 @@ for (int i = 0; i <= 2; i++) {
     printf("O elemento %d da lista é %d\n", i, lista[i]);
 };
 ```
+
+## Componentes do Grupo
+- Cauan Sousa > 24.124.084-5
+- Gustavo Bagio > 24.122.012-8
+- Ruan Turola > 24.122.050-8
