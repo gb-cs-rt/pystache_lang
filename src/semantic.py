@@ -73,7 +73,7 @@ class Semantic:
                     self.error(f"variável '{node.children[0].value.lexema}' não declarada,", node.children[0].value.linha)
 
             id_token = node.children[0]
-            token_type = self.check_cmdAtrib(node.children[2].children[0])
+            token_type = self.check_cmdAtrib(node.children[2].children[0], id_token.value.lexema)
 
             if len(node.children[1].children) > 0:
                 if id_token.value.lexema not in self.type_hash[-1]:
@@ -108,7 +108,7 @@ class Semantic:
                 self.error(f"parâmetro '{param}' já declarado,", node.children[0].value.linha)
             self.type_hash[-1][param] = "NUMBER"
 
-    def check_cmdAtrib(self, node):
+    def check_cmdAtrib(self, node, id):
 
         elements = []
         listLevel = [0]
@@ -118,7 +118,7 @@ class Semantic:
         mod = [False]
         self.get_elements(node, elements, listDimensions, listLevel, acessosLista, floatDiv, mod)
 
-        return self.check_elements(elements, listDimensions, acessosLista, floatDiv[0], mod[0])
+        return self.check_elements(id, elements, listDimensions, acessosLista, floatDiv[0], mod[0])
     
     def check_cmdPrint(self, node):
         elements = []
@@ -270,10 +270,16 @@ class Semantic:
             for child in node.children:
                 self.get_params(child, params)
 
-    def check_elements(self, elements, listDimensions, acessosLista, floatDiv, mod):
+    def check_elements(self, id, elements, listDimensions, acessosLista, floatDiv, mod):
 
         if len(elements) == 0:
             if len(listDimensions) > 0:
+                insertType = []
+                self.searchForInsert(self.tree.root, id, insertType)
+
+                if insertType:
+                    return f"LIST_{insertType[0]}_{max(listDimensions)}"
+
                 return f"LIST_VOID_{max(listDimensions)}"
             return None
         
@@ -386,6 +392,41 @@ class Semantic:
             return "STRING"
         else:
             return token_type
+        
+    def searchForInsert(self, node, id, insertType):
+        if node.type == "rule":
+            if node.value == "cmdID":
+                if node.children[0].value.lexema == "inserir":
+                    foundID = []
+                    self.getID(node.children[2].children[0].children[0].children[1], foundID)
+
+                    if foundID[0] == id:
+                        self.getInsertionType(node.children[2].children[0].children[0].children[1].children[1], insertType)
+
+        for child in node.children:
+            self.searchForInsert(child, id, insertType)
+
+    def getID(self, node, foundID):
+        if node.type == "rule":
+            if node.value == "elemento":
+                if node.children[0].value.tipo == "ID":
+                    foundID.append(node.children[0].value.lexema)
+        
+        for child in node.children:
+            self.getID(child, foundID)
+        
+    def getInsertionType(self, node, insertType):
+        if node.type == "rule":
+            if node.value == "elemento":
+                if node.children[0].value.tipo == "ID":
+                    if node.children[0].value.lexema not in self.type_hash[-1]:
+                        self.error(f"variável '{node.children[0].value.lexema}' não declarada neste escopo,", node.children[0].value.linha)
+                    insertType.append(self.type_hash[-1][node.children[0].value.lexema])
+                else:
+                    insertType.append(node.children[0].value.tipo)
+
+        for child in node.children:
+            self.getInsertionType(child, insertType)
         
     def check_cmdWhile(self, node, state):
             

@@ -501,6 +501,9 @@ class Converter:
         file.write("        std::cerr << \"índice inválido!\" << std::endl;\n");
         file.write("    }\n");
         file.write("}\n\n");
+        file.write("void inserir(std::vector<std::string>& vec, const char* element, std::optional<size_t> index = std::nullopt) {\n");
+        file.write("    inserir(vec, std::string(element), index);\n");
+        file.write("}\n\n");
         file.write("template <typename T>\n");
         file.write("void remover(std::vector<T>& vec, size_t index) {\n");
         file.write("    if (index < vec.size()) {\n");
