@@ -108,6 +108,31 @@ lista[0]: 10
 repita sendo i de 0 ate 2
     exiba("O elemento %d da lista é %d\n", i, lista[i])
 
--=| chamada de função em atribuição
+-=| declaração de matriz
 
-resultado: somar(1, 2) + 2
+matriz: [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+
+-=| acesso à matriz
+
+m: tamanho(matriz)
+n: tamanho(matriz[0])
+
+repita de 0 ate m - 1
+    repita de 0 ate n - 1
+        exiba("O elemento [%d][%d] da matriz é %d\n", x1, x2, matriz[x1][x2])
+
+m1: matriz[0]
+m2: matriz[0][0]
+
+-=| inserção de elementos
+
+inserir(lista, 4)
+
+tl: tamanho(lista)
+repita de 0 ate tl - 1
+    exiba("O elemento %d da lista é %d\n", x1, lista[x1])
+
+-=| remoção de elementos
+remover(lista, 0)
+repita de 0 ate tl - 1
+    exiba("O elemento %d da lista é %d\n", x1, lista[x1])
