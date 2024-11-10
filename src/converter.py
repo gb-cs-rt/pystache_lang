@@ -466,7 +466,6 @@ class Converter:
         file.write("#include <vector>\n")
         file.write("#include <cstdio>\n")
         file.write("#include <cmath>\n\n")
-        file.write("#include <optional>\n\n")
         file.write("using namespace std;\n\n")
         file.write("#define pass (void)0\n\n")
         file.write("string userInput(string message = \"\") {\n")
@@ -492,18 +491,14 @@ class Converter:
         file.write("    return static_cast<int>(vec.size());\n");
         file.write("}\n\n");
         file.write("template <typename T>\n");
-        file.write("void inserir(std::vector<T>& vec, const T& element, std::optional<size_t> index = std::nullopt) {\n");
-        file.write("    if (index.has_value() && index.value() < vec.size()) {\n");
-        file.write("        vec.insert(vec.begin() + index.value(), element);\n");
-        file.write("    } else if (!index.has_value()) {\n");
-        file.write("        vec.push_back(element);\n");
-        file.write("    } else {\n");
-        file.write("        std::cerr << \"índice inválido!\" << std::endl;\n");
-        file.write("    }\n");
+        file.write("void inserir(std::vector<T>& vec, const T& element) {\n");
+        file.write("    vec.push_back(element);\n");
         file.write("}\n\n");
-        file.write("void inserir(std::vector<std::string>& vec, const char* element, std::optional<size_t> index = std::nullopt) {\n");
-        file.write("    inserir(vec, std::string(element), index);\n");
+
+        file.write("void inserir(std::vector<std::string>& vec, const char* element) {\n");
+        file.write("    inserir(vec, std::string(element));\n");
         file.write("}\n\n");
+
         file.write("template <typename T>\n");
         file.write("void remover(std::vector<T>& vec, size_t index) {\n");
         file.write("    if (index < vec.size()) {\n");
