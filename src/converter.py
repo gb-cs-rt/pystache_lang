@@ -179,10 +179,6 @@ class Translator:
             return ""
         
     def translate_type(self, lexema, dimensions=None):
-        # print("-- TRANSLATE TYPE --")
-        # print(f"lexema: {lexema}, scopeID: {self.scopeID}")
-        # print(self.type_hash[self.scopeID])
-        # print("---------------------")
         tipo = self.type_hash[self.scopeID][lexema]
 
         if dimensions:
@@ -219,6 +215,8 @@ class Translator:
                 return "int "
             elif tipo == "FUNC_DOUBLE":
                 return "double "
+            elif tipo == "FUNC_STRING":
+                return "string "
             else:
                 return ""
 
@@ -471,7 +469,7 @@ class Converter:
         file.write("string userInput(string message = \"\") {\n")
         file.write("    string input;\n")
         file.write('    cout << message;\n')
-        file.write("    cin >> input;\n")
+        file.write("    std::getline(std::cin >> std::ws, input);\n")
         file.write("    return input;\n")
         file.write("}\n\n")
         file.write("int entradaNumero(string message = \"\") {\n")
@@ -505,35 +503,6 @@ class Converter:
         file.write("        std::cerr << \"índice inválido!\" << std::endl;\n");
         file.write("    }\n");
         file.write("}\n\n");
-        # template <typename T>
-        # int paraNumero(const T& value) {
-        #     // Convert value to string, then parse to int
-        #     if constexpr (std::is_arithmetic<T>::value) {
-        #         return static_cast<int>(value);  // Direct conversion if it's numeric
-        #     } else {
-        #         return std::stoi(std::to_string(value));  // Convert from string if needed
-        #     }
-        # }
-
-        # template <typename T>
-        # double paraReal(const T& value) {
-        #     // Convert value to string, then parse to double
-        #     if constexpr (std::is_arithmetic<T>::value) {
-        #         return static_cast<double>(value);  // Direct conversion if it's numeric
-        #     } else {
-        #         return std::stod(std::to_string(value));  // Convert from string if needed
-        #     }
-        # }
-
-        # template <typename T>
-        # std::string paraTexto(const T& value) {
-        #     return std::to_string(value);  // Convert any type to string using std::to_string
-        # }
-
-        # // Overload paraTexto for types that are already strings
-        # std::string paraTexto(const std::string& value) {
-        #     return value;  // Return string directly if it's already a string
-        # }
         file.write("template <typename T>\n");
         file.write("int paraNumero(const T& value) {\n");
         file.write("    if constexpr (std::is_arithmetic<T>::value) {\n");

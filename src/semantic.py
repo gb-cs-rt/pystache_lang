@@ -105,10 +105,13 @@ class Semantic:
                 insertType = []
                 self.getInsertionType(node.children[2].children[0].children[0].children[1].children[1], insertType)
 
-                if foundID[0] not in self.type_hash[-1]:
-                    self.error(f"variável '{foundID[0]}' não declarada,", node.children[0].value.linha)
-                if insertType[0] != self.type_hash[-1][foundID[0]].split("_")[1]:
-                    self.error(f"tipo de inserção incompatível com tipo da lista,", node.children[0].value.linha)
+                if foundID and insertType:
+                    if foundID[0] not in self.type_hash[-1]:
+                        self.error(f"variável '{foundID[0]}' não declarada,", node.children[0].value.linha)
+                    if self.type_hash[-1][foundID[0]][:4] != "LIST":
+                        self.error(f"variável '{foundID[0]}' não é uma lista,", node.children[0].value.linha)
+                    if self.type_hash[-1][foundID[0]].split("_")[1] != insertType[0]:
+                        self.error(f"lista '{foundID[0]}' já declarada com outro tipo,", node.children[0].value.linha)
             
 
     def declareFuncParams(self, node):
@@ -161,7 +164,7 @@ class Semantic:
                 if element.value.lexema not in self.type_hash[-1]:
                     self.error(f"variável '{element.value.lexema}' não declarada neste escopo,", element.value.linha)
                 else:
-                    if self.type_hash[-1][element.value.lexema] != "NUMBER":
+                    if self.type_hash[-1][element.value.lexema] not in ["NUMBER", "FUNC_NUMBER"]:
                         self.error(f"variável '{element.value.lexema}' não é um inteiro,", element.value.linha)
             else:
                 if element.value.tipo != "NUMBER":
@@ -435,8 +438,9 @@ class Semantic:
             if node.value == "elemento":
                 if node.children[0].value.tipo == "ID":
                     if node.children[0].value.lexema not in self.type_hash[-1]:
-                        self.error(f"variável '{node.children[0].value.lexema}' não declarada neste escopo,", node.children[0].value.linha)
-                    insertType.append(self.type_hash[-1][node.children[0].value.lexema])
+                        pass
+                    else:
+                        insertType.append(self.type_hash[-1][node.children[0].value.lexema])
                 else:
                     insertType.append(node.children[0].value.tipo)
 
