@@ -19,7 +19,7 @@ Pystache é uma linguagem de programação de alto nível desenvolvida como proj
 - ![Ubuntu 22 Shield](https://img.shields.io/badge/Ubuntu-22.04-orange)
 
 ### Pré-requisitos
-- **G++**
+- **G++ 7.0** ou mais recente
 - **Python 3.10** ou mais recente
 - **Git**
 - **VSCode** (caso deseje utilizar a extensão)
