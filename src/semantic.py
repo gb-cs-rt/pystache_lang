@@ -6,7 +6,7 @@ class Semantic:
     def __init__(self, tree, code):
         self.tree = tree
         self.code = CharacterIterator(code)
-        self.type_hash = [{"entradaNumero": "FUNC_NUMBER", "entradaReal": "FUNC_DOUBLE", "inserir": "FUNC_VOID", "remover": "FUNC_VOID", "tamanho": "FUNC_NUMBER"}]
+        self.type_hash = [{"entradaNumero": "FUNC_NUMBER", "entradaReal": "FUNC_DOUBLE", "inserir": "FUNC_VOID", "remover": "FUNC_VOID", "tamanho": "FUNC_NUMBER", "paraNumero": "FUNC_NUMBER", "paraReal": "FUNC_DOUBLE", "paraTexto": "FUNC_STRING"}]
         self.all_scopes = []
         self.forVezesX = 0
 
@@ -98,6 +98,17 @@ class Semantic:
         elif node.children[2].children[0].children[0].value == "chamadaFuncao":
             if node.children[0].value.lexema not in self.type_hash[-1]:
                 self.error(f"função '{node.children[0].value.lexema}' não declarada,", node.children[0].value.linha)
+            if node.children[0].value.lexema == "inserir":
+                foundID = []
+                self.getID(node.children[2].children[0].children[0].children[1], foundID)
+
+                insertType = []
+                self.getInsertionType(node.children[2].children[0].children[0].children[1].children[1], insertType)
+
+                if foundID[0] not in self.type_hash[-1]:
+                    self.error(f"variável '{foundID[0]}' não declarada,", node.children[0].value.linha)
+                if insertType[0] != self.type_hash[-1][foundID[0]].split("_")[1]:
+                    self.error(f"tipo de inserção incompatível com tipo da lista,", node.children[0].value.linha)
             
 
     def declareFuncParams(self, node):
@@ -139,10 +150,10 @@ class Semantic:
                         if isinstance(acessosLista[element.value.lexema], list):
                             for dim in acessosLista[element.value.lexema]:
                                 if dim > int(list_dimension):
-                                    self.error(f"dimensão da lista '{element.value.lexema}' incorreta,", element.value.linha)
+                                    self.error(f"dimensão da lista '{element.value.lexema}' incompatível,", element.value.linha)
                         else:
                             if acessosLista[element.value.lexema] > int(list_dimension):
-                                self.error(f"dimensão da lista '{element.value.lexema}' incorreta,", element.value.linha)
+                                self.error(f"dimensão da lista '{element.value.lexema}' incompatível,", element.value.linha)
 
     def onlyNumbers(self, elements):
         for element in elements:
@@ -193,7 +204,7 @@ class Semantic:
                 if f"x{self.forVezesX}" not in self.type_hash[-1]:
                     self.type_hash[-1][f"x{self.forVezesX}"] = "NUMBER"
                 elif self.type_hash[-1][f"x{self.forVezesX}"] != "NUMBER":
-                    self.error(f"variável 'x{self.forVezesX}' já declarada,", node.children[0].children[0].linha)
+                    self.error(f"variável 'x{self.forVezesX}' já declarada como não inteiro,", node.children[0].value.linha)
             else:
                 self.forVezesX -= 1
         elif node.children[1].children[0].value == "forSendo":
@@ -300,6 +311,8 @@ class Semantic:
             token_type = "NUMBER"
         elif token_type == "FUNC_DOUBLE":
             token_type = "DOUBLE"
+        elif token_type == "FUNC_STRING":
+            token_type = "STRING"
         elif token_type[:4] == "LIST":
 
             list_type = token_type.split("_")[1]
@@ -310,12 +323,12 @@ class Semantic:
                 if isinstance(acessosLista[first_token.lexema], list):
                     for dim in acessosLista[first_token.lexema]:
                         if dim > int(list_dimension):
-                            self.error(f"dimensão da lista '{first_token.lexema}' incorreta,", first_token.linha)
+                            self.error(f"dimensão da lista '{first_token.lexema}' incompatível,", first_token.linha)
                         else:
                             dimResultante = int(list_dimension) - dim
                 else:
                     if acessosLista[first_token.lexema] > int(list_dimension):
-                        self.error(f"dimensão da lista '{first_token.lexema}' incorreta,", first_token.linha)
+                        self.error(f"dimensão da lista '{first_token.lexema}' incompatível,", first_token.linha)
                     else:
                         dimResultante = int(list_dimension) - acessosLista[first_token.lexema]
 
@@ -339,6 +352,8 @@ class Semantic:
                     element_type = "NUMBER"
                 elif self.type_hash[-1][element.value.lexema] == "FUNC_DOUBLE":
                     element_type = "DOUBLE"
+                elif self.type_hash[-1][element.value.lexema] == "FUNC_STRING":
+                    element_type = "STRING"
                 elif self.type_hash[-1][element.value.lexema][:4] == "LIST":
 
                     list_type = self.type_hash[-1][element.value.lexema].split("_")[1]
@@ -349,12 +364,12 @@ class Semantic:
                         if isinstance(acessosLista[element.value.lexema], list):
                             for dim in acessosLista[element.value.lexema]:
                                 if dim > int(list_dimension):
-                                    self.error(f"dimensão da lista '{element.value.lexema}' incorreta,", element.value.linha)
+                                    self.error(f"dimensão da lista '{element.value.lexema}' incompatível,", element.value.linha)
                                 else:
                                     dimResultante = int(list_dimension) - dim
                         else:
                             if acessosLista[element.value.lexema] > int(list_dimension):
-                                self.error(f"dimensão da lista '{element.value.lexema}' incorreta,", element.value.linha)
+                                self.error(f"dimensão da lista '{element.value.lexema}' incompatível,", element.value.linha)
                             else:
                                 dimResultante = int(list_dimension) - acessosLista[element.value.lexema]
 

@@ -401,7 +401,7 @@ class Translator:
     def listaParametros(self, node, state, function=False):
         if state == "enter":
             self.scopeID += 1
-            self.scope_pile.append({"entradaNumero": True, "entradaReal": True, "inserir": True, "remover": True, "tamanho": True})
+            self.scope_pile.append({"entradaNumero": True, "entradaReal": True, "inserir": True, "remover": True, "tamanho": True, "paraNumero": True, "paraReal": True, "paraTexto": True})
             if function:
                 self.funcParam = True
             return ""
@@ -494,11 +494,9 @@ class Converter:
         file.write("void inserir(std::vector<T>& vec, const T& element) {\n");
         file.write("    vec.push_back(element);\n");
         file.write("}\n\n");
-
         file.write("void inserir(std::vector<std::string>& vec, const char* element) {\n");
         file.write("    inserir(vec, std::string(element));\n");
         file.write("}\n\n");
-
         file.write("template <typename T>\n");
         file.write("void remover(std::vector<T>& vec, size_t index) {\n");
         file.write("    if (index < vec.size()) {\n");
@@ -507,6 +505,58 @@ class Converter:
         file.write("        std::cerr << \"índice inválido!\" << std::endl;\n");
         file.write("    }\n");
         file.write("}\n\n");
+        # template <typename T>
+        # int paraNumero(const T& value) {
+        #     // Convert value to string, then parse to int
+        #     if constexpr (std::is_arithmetic<T>::value) {
+        #         return static_cast<int>(value);  // Direct conversion if it's numeric
+        #     } else {
+        #         return std::stoi(std::to_string(value));  // Convert from string if needed
+        #     }
+        # }
+
+        # template <typename T>
+        # double paraReal(const T& value) {
+        #     // Convert value to string, then parse to double
+        #     if constexpr (std::is_arithmetic<T>::value) {
+        #         return static_cast<double>(value);  // Direct conversion if it's numeric
+        #     } else {
+        #         return std::stod(std::to_string(value));  // Convert from string if needed
+        #     }
+        # }
+
+        # template <typename T>
+        # std::string paraTexto(const T& value) {
+        #     return std::to_string(value);  // Convert any type to string using std::to_string
+        # }
+
+        # // Overload paraTexto for types that are already strings
+        # std::string paraTexto(const std::string& value) {
+        #     return value;  // Return string directly if it's already a string
+        # }
+        file.write("template <typename T>\n");
+        file.write("int paraNumero(const T& value) {\n");
+        file.write("    if constexpr (std::is_arithmetic<T>::value) {\n");
+        file.write("        return static_cast<int>(value);\n");
+        file.write("    } else {\n");
+        file.write("        return std::stoi(std::to_string(value));\n");
+        file.write("    }\n");
+        file.write("}\n\n");
+        file.write("template <typename T>\n");
+        file.write("double paraReal(const T& value) {\n");
+        file.write("    if constexpr (std::is_arithmetic<T>::value) {\n");
+        file.write("        return static_cast<double>(value);\n");
+        file.write("    } else {\n");
+        file.write("        return std::stod(std::to_string(value));\n");
+        file.write("    }\n");
+        file.write("}\n\n");
+        file.write("template <typename T>\n");
+        file.write("std::string paraTexto(const T& value) {\n");
+        file.write("    return std::to_string(value);\n");
+        file.write("}\n\n");
+        file.write("std::string paraTexto(const std::string& value) {\n");
+        file.write("    return value;\n")
+        file.write("}\n\n")
         file.close()
     
     def convert(self):

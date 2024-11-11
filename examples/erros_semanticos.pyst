@@ -15,6 +15,8 @@ a +: 1
 
 a: b + 2
 
+inserir(a, 1)
+
 -=| atribuição de valor imcompatível com o tipo da variável
 
 a: 0
@@ -67,3 +69,13 @@ a: 1
 b: 2.5
 
 c: a % b
+
+-=| acesso à lista com dimensão imcompatível
+
+lista: [1, 2, 3]
+a: lista[0][0]
+
+-=| inserção de elemento de tipo imcompatível com a lista
+
+lista: [1, 2, 3]
+inserir(lista, "Hello, World!")

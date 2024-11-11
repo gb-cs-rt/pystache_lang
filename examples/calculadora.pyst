@@ -19,6 +19,9 @@ funcao potencia(a, b)
 funcao divisaoInteiro(a, b)
     retorne a // b
 
+
+historico: ["\nHistórico:"]
+
 enquanto verdadeiro
 
     exiba("---- CALCULADORA ----\n")
@@ -28,7 +31,8 @@ enquanto verdadeiro
     exiba("4 - Divisão\n")
     exiba("5 - Resto\n")
     exiba("6 - Potência\n")
-    exiba("7 - Divisão Inteira\n")
+    exiba("7 - Divisão Inteira\n\n")
+    exiba("8 - Histórico\n")
     exiba("0 - Sair\n")
     exiba("Digite a opção desejada: ")
     opcao: entradaNumero()
@@ -36,31 +40,65 @@ enquanto verdadeiro
     se opcao = 0 entao
         pare
 
-    exiba("\nDigite o primeiro número inteiro: ")
-    n1: entradaNumero()
-    exiba("Digite o segundo número inteiro: ")
-    n2: entradaNumero()
+    n1: 0
+    n2: 0
+
+    se opcao != 8 entao
+        exiba("\nDigite o primeiro número inteiro: ")
+        n1: entradaNumero()
+        exiba("Digite o segundo número inteiro: ")
+        n2: entradaNumero()
+
+    resultado: 0.0
 
     se opcao = 1 entao
-        exiba("\nO resultado da soma é: %.2f\n\n", soma(n1, n2))
+        resultado: soma(n1, n2)
+        exiba("\nO resultado da soma é: %.2f\n\n", resultado)
+        texto: paraTexto(n1) + " + " + paraTexto(n2) + " = " + paraTexto(resultado)
+        inserir(historico, texto)
 
     se opcao = 2 entao
-        exiba("\nO resultado da subtração é: %.2f\n\n", subtracao(n1, n2))
+        resultado: subtracao(n1, n2)
+        exiba("\nO resultado da subtração é: %.2f\n\n", resultado)
+        texto: paraTexto(n1) + " - " + paraTexto(n2) + " = " + paraTexto(resultado)
+        inserir(historico, texto)
 
     se opcao = 3 entao
-        exiba("\nO resultado da multiplicação é: %.2f\n\n", multiplicacao(n1, n2))
+        resultado: multiplicacao(n1, n2)
+        exiba("\nO resultado da multiplicação é: %.2f\n\n", resultado)
+        texto: paraTexto(n1) + " * " + paraTexto(n2) + " = " + paraTexto(resultado)
+        inserir(historico, texto)
 
     se opcao = 4 entao
-        exiba("\nO resultado da divisão é: %.2f\n\n", divisao(n1, n2))
+        resultado: divisao(n1, n2)
+        exiba("\nO resultado da divisão é: %.2f\n\n", resultado)
+        texto: paraTexto(n1) + " / " + paraTexto(n2) + " = " + paraTexto(resultado)
+        inserir(historico, texto)
 
     se opcao = 5 entao
-        exiba("\nO resultado do resto é: %.2f\n\n", resto(n1, n2))
+        resultado: resto(n1, n2)
+        exiba("\nO resultado do resto é: %.2f\n\n", resultado)
+        texto: paraTexto(n1) + " % " + paraTexto(n2) + " = " + paraTexto(resultado)
+        inserir(historico, texto)
 
     se opcao = 6 entao
-        exiba("\nO resultado da potência é: %.2f\n\n", potencia(n1, n2))
+        resultado: potencia(n1, n2)
+        exiba("\nO resultado da potência é: %.2f\n\n", resultado)
+        texto: paraTexto(n1) + " ^ " + paraTexto(n2) + " = " + paraTexto(resultado)
+        inserir(historico, texto)
 
     se opcao = 7 entao
-        exiba("\nO resultado da divisão inteira é: %.2f\n\n", divisaoInteiro(n1, n2))
+        resultado: divisaoInteiro(n1, n2)
+        exiba("\nO resultado da divisão inteira é: %.2f\n\n", resultado)
+        texto: paraTexto(n1) + " // " + paraTexto(n2) + " = " + paraTexto(resultado)
+        inserir(historico, texto)
 
-    se opcao < 0 | opcao > 7 entao
+    se opcao = 8 entao
+        len: tamanho(historico)
+        repita de 0 ate len - 1
+            linha: historico[x1]
+            exiba("%s\n", linha)
+        exiba("\n")
+
+    se opcao < 0 | opcao > 8 entao
         exiba("\nOpção inválida.\n\n")

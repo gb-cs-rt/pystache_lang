@@ -1,0 +1,5 @@
+lista: []
+
+inserir(lista, 2)
+
+-=| inserir(lista, "2")
