@@ -1,3 +1,1 @@
-n3: entradaNumero("Insira um numero: ") + 2.5
-
-exiba("O valor de n3 é %f\n\n", n3)
+exiba("Olá, Mundo!")
