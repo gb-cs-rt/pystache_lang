@@ -256,7 +256,8 @@ class Semantic:
                         
                         acessosLista[node.children[0].value.lexema] = qtdAcessos[0]
 
-                elements.append(node.children[0])
+                if node.children[0].value.tipo not in ["OPEN_PARENTHESIS", "CLOSE_PARENTHESIS"]:
+                    elements.append(node.children[0])
             if node.value == "cmdInput":
                 elements.append(node.children[0])
             if node.value == "opMul":
@@ -347,6 +348,7 @@ class Semantic:
         elif token_type == "FUNC_VOID":
             self.error(f"função não retorna valor,", first_token.linha)
         
+        print([element.value.lexema for element in elements])
         for element in elements:
             if element.value.tipo == "ID":
                 if element.value.lexema not in self.type_hash[-1]:
@@ -398,6 +400,7 @@ class Semantic:
                 elif (token_type == "NUMBER" and element_type == "DOUBLE") or (token_type == "DOUBLE" and element_type == "NUMBER"):
                     token_type = "DOUBLE"
                 else:
+                    print(token_type, element_type)
                     self.error(f"expressão com tipos incompatíveis,", element.value.linha)
         
         if len(listDimensions) > 0:
@@ -465,7 +468,7 @@ class Semantic:
             self.all_scopes.append(self.type_hash[-1].copy())
             return True, self.all_scopes
         except Exception as e:
-            # import traceback
-            # traceback.print_exc()
+            import traceback
+            traceback.print_exc()
             print(e)
             return False, None
