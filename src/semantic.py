@@ -348,7 +348,6 @@ class Semantic:
         elif token_type == "FUNC_VOID":
             self.error(f"função não retorna valor,", first_token.linha)
         
-        print([element.value.lexema for element in elements])
         for element in elements:
             if element.value.tipo == "ID":
                 if element.value.lexema not in self.type_hash[-1]:
@@ -400,7 +399,6 @@ class Semantic:
                 elif (token_type == "NUMBER" and element_type == "DOUBLE") or (token_type == "DOUBLE" and element_type == "NUMBER"):
                     token_type = "DOUBLE"
                 else:
-                    print(token_type, element_type)
                     self.error(f"expressão com tipos incompatíveis,", element.value.linha)
         
         if len(listDimensions) > 0:
