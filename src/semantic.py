@@ -111,6 +111,7 @@ class Semantic:
                     if self.type_hash[-1][foundID[0]][:4] != "LIST":
                         self.error(f"variável '{foundID[0]}' não é uma lista,", node.children[0].value.linha)
                     if self.type_hash[-1][foundID[0]].split("_")[1] != insertType[0]:
+                        print(insertType[0])
                         self.error(f"lista '{foundID[0]}' já declarada com outro tipo,", node.children[0].value.linha)
             
 
@@ -442,8 +443,10 @@ class Semantic:
                         pass
                     else:
                         insertType.append(self.type_hash[-1][node.children[0].value.lexema])
-                else:
+                elif node.children[0].value.tipo not in ["OPEN_PARENTHESIS", "CLOSE_PARENTHESIS"]:
                     insertType.append(node.children[0].value.tipo)
+                else:
+                    pass
 
         for child in node.children:
             self.getInsertionType(child, insertType)
@@ -466,7 +469,7 @@ class Semantic:
             self.all_scopes.append(self.type_hash[-1].copy())
             return True, self.all_scopes
         except Exception as e:
-            # import traceback
-            # traceback.print_exc()
+            import traceback
+            traceback.print_exc()
             print(e)
             return False, None
