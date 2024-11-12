@@ -469,7 +469,7 @@ class Semantic:
             self.all_scopes.append(self.type_hash[-1].copy())
             return True, self.all_scopes
         except Exception as e:
-            import traceback
-            traceback.print_exc()
+            # import traceback
+            # traceback.print_exc()
             print(e)
             return False, None
