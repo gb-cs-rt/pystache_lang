@@ -93,7 +93,7 @@ class Translator:
             if token.tipo == "ASSIGN":
                 return " = "
             elif token.tipo == "INDENT":
-                return " {\n"
+                return " {\n\t"
             elif token.tipo == "DEDENT":
                 return "}"
             elif token.tipo == "RESERVED_SE":
